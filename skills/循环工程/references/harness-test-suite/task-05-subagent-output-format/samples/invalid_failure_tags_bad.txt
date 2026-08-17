@@ -1,0 +1,3 @@
+token_estimate：约 15K
+failure_tags：foo
+evidence_link：.agents/evidence/traces/fp01.md

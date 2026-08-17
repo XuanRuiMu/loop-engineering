@@ -1,0 +1,23 @@
+{
+  "skill_name": "bug-fix",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "修复bug：玩家使用技能时服务器报NullPointerException",
+      "expected_output": "技能应触发Bug修复 skill。阶段1发现描述缺少具体报错位置、复现步骤和期望行为，属于歧义，必须先使用AskUserQuestion询问用户澄清。澄清后完整阅读相关代码，深挖根因，对照需求文档，执行修复，搜索同类问题，测试验证，最后用AskUserQuestion交付",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "修复警告：编译时出现deprecation警告",
+      "expected_output": "技能应触发Bug修复 skill。阶段1发现描述缺少具体警告位置、涉及API和期望替代方案，属于歧义，必须先使用AskUserQuestion询问用户澄清。澄清后识别为警告类型问题，定位警告来源代码，完整阅读相关代码理解上下文，制定修复计划替换过时API，搜索同类问题，测试验证，交付确认",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "出bug了，东西不对",
+      "expected_output": "技能应触发bug-fix skill，识别用户描述存在严重歧义（什么东西不对、什么表现、何时发生均不明确），必须使用AskUserQuestion询问用户澄清问题，不得猜测和自行假设",
+      "files": []
+    }
+  ]
+}

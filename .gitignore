@@ -1,0 +1,21 @@
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / temp
+*.tmp
+*.swp
+*.bak
+.idea/
+.vscode/
+
+# Build artifacts (skills are plain markdown, but keep repo clean)
+node_modules/
+dist/
+build/
+
+# Local secrets - never commit
+*.env
+.env
+*.token
