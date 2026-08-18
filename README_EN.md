@@ -147,7 +147,7 @@ Loop Engineering's rivals aren't "another AI" — they're "you babysitting the A
 
 ## FAQ
 
-**Is it only for code?** No. The loop is generic — any creative or productive task that can be broken into *verifiable steps + an explicit stop condition* works. The bundled companions target software tasks by default, but you can wire your own skills into the dispatch mapping. A few non-code examples:
+**Can it write novels or music too?** Yes. The loop is generic — any creative or productive task that can be broken into *verifiable steps + an explicit stop condition* works. A few non-code examples:
 
 - **Writing a novel** — `loop: split this 300k-word novel into chapters by outline, write chapter by chapter, run a three-axis review on each (character-voice consistency / plot logic / prose signature), circuit-break and rewrite on character contradictions.` A mid/low-tier model, through many loop iterations + per-chapter review, still produces a coherent manuscript with stable characters and consistent voice — instead of collapsing after one giant generation.
 - **Writing music / an album** — `loop: write a 10-track album, generate track by track, review each (harmonic progression / song structure / thematic-motif unity / arrangement depth), redo any track where the motif isn't consistent.` The model spends more tokens turning "one decent track" into "a conceptually unified album."
