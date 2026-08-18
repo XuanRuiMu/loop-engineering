@@ -1,6 +1,6 @@
 # Loop Engineering · 循环工程
 
-> 让任意编程智能体把一个目标自主循环成「已测试、已审查、可交付」的功能，并在每次任务后自我改进。
+> 让任意智能体把一个目标自主循环成「已测试、已审查、可交付」的成果，并在每次任务后自我改进。
 
 [![Stars](https://img.shields.io/github/stars/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/stargazers)
 [![License: MIT](https://img.shields.io/github/license/XuanRuiMu/loop-engineering)](LICENSE)
@@ -34,13 +34,22 @@ You ❯ loop: fix every failing test in this plugin, don't stop until green
 
 ---
 
-## 中文介绍
+## 介绍
 
-**循环工程** 是一套「方法论 + 技能包」，把编程智能体从「一次性的助手」升级为**自主工程循环**：你给目标，它把目标拆成功能点，派发全新上下文的子代理逐个实现，用测试验证、用三轴审查把关、用熔断机制防止死循环，并在**每次任务后**跑元循环**自我改进自身的规则**。
+**循环工程** 是一套「方法论 + 技能包」，它的核心主张只有一句：
 
-它要解决的，正是智能体最弱的一环：*把事做完*。智能体改一个文件很在行，但「把整个项目交付」就不行了——上下文会爆、范围会漂、会在一个 bug 上死循环、会跳过测试，而且永远不会「越用越会干」。循环工程把项目状态外置到一个极小的 `PROGRESS.md`（只保留「现在需要什么」），每个功能点都在**全新上下文的子代理**里跑（主线程永不膨胀），强制「先测试 + 审查才算完成」，并叠加**熔断机制**与**自我改进的元循环**。
+> **在 TRAE、WorkBuddy 这类内置中低等级模型的工具里，让普通 AI 大模型用「更多的 token 和更长的时间」，换取出货质量比肩世界级顶级模型的水平。**
 
-它本质是**元技能**：负责编排，真正的活由一整套随附技能干——三轴审查、纾困复盘、方案审查、代码需求实现器、Bug修复、软件测试、生成PRD、会话交接，全部打包在内、开箱即用。`SKILL.md` 采用 Anthropic Agent Skills 格式，可被 Claude Code、CodeBuddy/WorkBuddy 及任何读取 `SKILL.md` 的智能体加载。
+顶级模型很贵、也很聪明；但大多数日常工具（TRAE、WorkBuddy、Cursor、Claude Code 等）默认跑的是更便宜的中低等级模型。循环工程不靠换模型，而是靠**工程化约束**把质量拉满：
+
+- 你给一个目标，它把目标拆成功能点，派发**全新上下文**的子代理逐个实现；
+- 每个功能点都必须**先跑测试、再跑三轴审查**才算完成，绝不「声称做完」；
+- 用**熔断机制**防止在某个 bug 上死循环；
+- 并在**每次任务后**跑元循环**自我改进自身的规则**。
+
+它要解决的，正是智能体最弱的一环：*把事做完、做对*。智能体改一个文件很在行，但「把整个项目交付」就不行了——上下文会爆、范围会漂、会在一个 bug 上死循环、会跳过测试，而且永远不会「越用越会干」。循环工程把项目状态外置到一个极小的 `PROGRESS.md`（只保留「现在需要什么」），主线程永不膨胀，强制验证与审查，并叠加熔断与自我改进。
+
+它本质是**元技能**：负责编排，真正的活由一整套随附技能干——三轴审查、纾困复盘、方案审查、代码需求实现器、Bug修复、软件测试、生成PRD、会话交接，全部打包在内、开箱即用。`SKILL.md` 采用 Anthropic Agent Skills 格式，可被 Claude Code、CodeBuddy/WorkBuddy、TRAE、Cursor 及任何读取 `SKILL.md` 的智能体加载。
 
 ---
 
@@ -72,46 +81,13 @@ irm https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.ps
 
 ### 或下载压缩包
 
-不用脚本、无需联网工具——从 [Releases 页](https://github.com/XuanRuiMu/loop-engineering/releases) 下载 `loop-engineering-skills.zip`，直接解压进技能目录即可：
+从 [Releases 页](https://github.com/XuanRuiMu/loop-engineering/releases) 下载 `loop-engineering-skills.zip`，解压到对应工具的技能目录即可：
 
-```bash
-# 1) 从 Releases 下载 loop-engineering-skills.zip，然后：
-unzip loop-engineering-skills.zip -d ~/.agents/skills     # CodeBuddy / WorkBuddy
-# 或者
-unzip loop-engineering-skills.zip -d ~/.claude/skills      # Claude Code
-```
+- **CodeBuddy / WorkBuddy / TRAE**：解压到 `.agents/skills/`
+- **Claude Code**：解压到 `~/.claude/skills/`（全局）或项目内 `skills/`
+- **Cursor / Windsurf**：把各 `SKILL.md` 接入 skills loader 或指向 rules
 
-校验和（下载后核对完整性，**可选**）：
-
-```
-SHA256: 28b29f6b9673948d47a4db3c1cd4820533ce9425cb7d4af4d9236b88a0183664
-```
-
-```bash
-# Linux / macOS
-sha256sum loop-engineering-skills.zip
-# Windows（PowerShell）
-Get-FileHash loop-engineering-skills.zip -Algorithm SHA256
-```
-
-压缩包顶层就是 9 个技能文件夹，一次解压全部就位；想升级随时重新下载。
-
-### 想手动复制？
-
-`skills/` 目录里就是 9 个开箱即用的技能，把它们放进对应智能体的技能目录即可：
-
-| 智能体 | 复制到哪里 |
-| --- | --- |
-| **Claude Code** | `~/.claude/skills/`（全局）或 `skills/`（项目） |
-| **CodeBuddy / WorkBuddy** | `.agents/skills/` |
-| **Cursor / Windsurf** | 把 rules 指向各 `SKILL.md`，或使用 skills loader |
-
-然后直接说：
-
-> **"循环工程：把这个项目的所有测试失败修复，直到全部通过"**
-> **"loop：给某插件添加 5 个新法术，自主循环直到全部实现并通过测试"**
-> **"自主循环：把某项目的所有中文硬编码提取到翻译文件，别停下一直做"**
-> **"自动开发：重构认证模块，按依赖顺序逐个功能点推进，熔断上限 30 轮"**
+压缩包顶层就是 9 个技能文件夹，一次解压全部就位；想升级随时重新下载。（下载后可用 SHA256 `28b29f6b9673948d47a4db3c1cd4820533ce9425cb7d4af4d9236b88a0183664` 核对完整性。）
 
 ---
 
@@ -148,62 +124,33 @@ Get-FileHash loop-engineering-skills.zip -Algorithm SHA256
 
 ---
 
-## 示例
-
-见 [`examples/`](examples/) 中的可复制素材：
-
-- [`examples/PROGRESS.sample.md`](examples/PROGRESS.sample.md) —— 一个真实重构任务填好的 `PROGRESS.md`。
-- [`examples/loop-transcript.sample.md`](examples/loop-transcript.sample.md) —— 一段完整的带注释循环会话。
-
----
-
 ## 对比
 
-| 能力 | 裸用智能体 | 你盯着保姆式 | **循环工程** |
+循环工程的对手不是「另一个 AI」，而是「你自己盯着 AI 干」和「工具自带的单次目标指令」。
+
+| 能力 | 裸用智能体 | 单次目标指令（如 Claude Code 的 `/goal`、Codex 的 `/目标`）| **循环工程** |
 | --- | --- | --- | --- |
-| 不用你盯着也能做完 | 否 | 有时 | **是** |
-| 扛得住上下文窗口 | 否 | 有时 | **是**（全新上下文子代理）|
-| 止住失控死循环 | 否 | 有时 | **是**（熔断机制）|
-| 声称完成前先跑测试 | 有时 | 有时 | **是**（强制）|
-| 每次改动都做代码审查 | 否 | 有时 | **是**（三轴）|
+| 不用你盯着也能做完 | 否 | 部分 | **是**（自主循环到停止条件）|
+| 扛得住上下文窗口 | 否 | 否（单上下文易爆）| **是**（全新上下文子代理 + PROGRESS.md）|
+| 止住失控死循环 | 否 | 通常无 | **是**（熔断机制）|
+| 声称完成前先跑测试 + 审查 | 有时 | 通常无 | **是**（强制三轴）|
+| 随附开箱即用技能包 | 否 | 否 | **是**（9 个技能打包）|
 | 随时间自我改进 | 否 | 否 | **是**（元循环）|
+
+> 和同类循环 / 自动化 skill 相比，循环工程的差异点在于：它**自带一整套随附技能**（三轴审查、纾困复盘、方案审查、TDD 实现、Bug 修复、测试、PRD、会话交接），并强制「测试 + 三轴审查才算完成」+ 熔断 + 自我改进元循环——而不是只给一个空壳循环框架让你自己填。
+
+> 它**不替代** Claude Code 的 `/goal` 或 Codex 的 `/目标`：你完全可以在这些工具里调用循环工程，把一次性的目标指令升级成「带审查、带熔断、会自我改进」的工程循环。
 
 ---
 
 ## 常见问题
 
-**它兼容 Claude Code 吗？** 兼容。`SKILL.md` 用的是 Anthropic Agent Skills 格式（YAML 前置 `name` + `description`），可被 Claude Code、CodeBuddy/WorkBuddy 及任何读取 `SKILL.md` 的智能体加载。
+**它只能写代码吗？** 不。循环本身是通用的——任何能被拆成「可验证步骤 + 明确停止条件」的创造性或生产性任务都能用。随附技能默认面向软件任务，但你可以把派发映射接到自己的技能。举几个非代码的例子：
 
-**只能用于写代码吗？** 循环本身是通用的；随附技能面向软件任务，但你可以在派发映射里接入自己的技能。
+- **写长篇小说**：`loop: 把这本 30 万字小说按大纲拆成章节，逐章写，每章跑三轴审查（人物声纹一致性 / 情节逻辑 / 文风签名），人设前后矛盾就熔断回写。` 中低等级模型靠多轮循环 + 逐章审查，照样能写出人物稳定、伏笔回收、文风统一的成稿，而不是一次生成就崩。
+- **写音乐 / 专辑**：`loop: 写一张 10 首歌的专辑，逐首生成，每首跑审查（和声进行 / 曲式结构 / 主题动机统一 / 编曲层次），主题动机前后不统一就重做。` 模型用更多 token 把「一首还行」打磨成「整张概念统一」。
+- **写研究报告 / 论文**：`loop: 把这份课题拆成文献综述、方法、实验、讨论，逐节写并跑事实核查与引用审查，数据来源缺失就标记阻塞。`
+
+核心思路一致：**用更便宜的模型 + 更多循环轮次 + 强制验证，换世界级产出**。这正是它在 TRAE、WorkBuddy 这类中低等级模型工具里价值最大的原因。
 
 **子代理卡住了怎么办？** 修复 5 次仍失败就标记为阻塞，主代理跳过继续；若它阻塞了后续所有依赖项，循环停下，并在方向性问题时先跑纾困复盘再汇报。
-
----
-
-## 路线
-
-- 指标导出（已用轮次、token、触发熔断次数）用于自我改进看板
-- 在中文原版之外提供英文版随附技能
-- 为每个随附技能补充更多预置回归任务集
-
----
-
-## 贡献
-
-Bug 修复、新随附技能、更好的 harness 规则都欢迎。见 [CONTRIBUTING.md](CONTRIBUTING.md)。元循环理念在这里同样适用：把改动作为「有证据支撑、分级处理」的修复来提议。
-
----
-
-## 许可证
-
-[MIT](LICENSE) —— 随便用，保留署名即可。
-
----
-
-## 关注
-
-- 如果循环工程帮你省下了上下文窗口，给仓库点个 Star。⭐
-- 遇到想让 harness 处理的失败模式，尽管提 Issue。
-- 在 Discussions 里分享你最得意的 "loop:" 提示词。
-
-本项目本身就是一套自我改进的方法论。每次发版后，仓库都会跑一遍循环工程的元循环。
