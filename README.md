@@ -8,34 +8,11 @@
 [![Last Commit](https://img.shields.io/github/last-commit/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering/commits/main)
 [![Issues](https://img.shields.io/github/issues/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering/issues)
 [![Repo Size](https://img.shields.io/github/repo-size/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering)
-[![Topics](https://img.shields.io/badge/topics-ai%2Cagent%2Cllm%2Cautonomous-blue)](https://github.com/XuanRuiMu/loop-engineering/topics)
-
-**Loop Engineering** is a methodology + skill pack that turns a coding agent from a "one-shot assistant" into an **autonomous engineering loop**. You set a goal; it breaks the goal into feature points, dispatches fresh-context sub-agents to implement each one, verifies with tests, runs a three-axis code review, circuit-breaks on runaway loops, and — after every task — runs a meta-loop that **improves its own rules**.
-
-**循环工程** 是一套「方法论 + 技能包」。它把编程智能体从「一次性的助手」变成**自主工程循环**：你给目标，它把目标拆成功能点，派发全新上下文的子代理逐个实现，用测试验证、用三轴审查把关、用熔断机制防止死循环，并在每次任务后用元循环**自我改进自身的规则**。
+[![Type](https://img.shields.io/badge/type-agent--skill-blue)](https://github.com/XuanRuiMu/loop-engineering)
 
 ---
 
 ## What it looks like · 运行效果
-
-```mermaid
-flowchart TD
-    A[Goal / 目标] --> B[Define verifiable stop condition + circuit-breaker<br/>定义可验证停止条件 + 熔断上限]
-    B --> C[Decompose into feature points → PROGRESS.md<br/>拆解为功能点]
-    C --> D{Orchestrator loop / 主代理循环}
-    D --> E[Read PROGRESS.md / 读取进度]
-    E --> F{Stop condition met? / 停止条件达成?}
-    F -- no --> G[Dispatch Headless sub-agent / 派发子代理]
-    G --> H[Implement + Test + 3-Axis Review<br/>实现 + 测试 + 三轴审查]
-    H --> I[Return short summary / 返回简短摘要]
-    I --> J[Update & compress PROGRESS.md / 更新并压缩]
-    J --> D
-    F -- yes --> K[Self-Harness meta-loop / 元循环自检]
-    K --> L[Deliver via AskUserQuestion / 交付确认]
-    D -. circuit-break / 熔断 .-> M[纾困复盘 + report / 复盘并汇报]
-```
-
-A real session, condensed:
 
 ```
 You ❯ loop: fix every failing test in this plugin, don't stop until green
@@ -56,19 +33,25 @@ You ❯ loop: fix every failing test in this plugin, don't stop until green
 
 ---
 
-## Why this exists · 为什么需要它
+## Introduction
 
-**The problem.** Coding agents are great for one file and terrible for "finish the whole project." They lose context, drift off-scope, loop forever on a bug, skip tests, and never get better at being an agent.
+**Loop Engineering** is a methodology + skill pack that turns a coding agent from a "one-shot assistant" into an **autonomous engineering loop**. You set a goal; it breaks the goal into feature points, dispatches fresh-context sub-agents to implement each one, verifies the result with tests, runs a three-axis code review, circuit-breaks on runaway loops, and — after every single task — runs a meta-loop that **improves its own rules**.
 
-**核心问题**：智能体改一个文件很在行，但「把整个项目做完」就不行了——上下文会爆、范围会漂、会在一个 bug 上死循环、会跳过测试，而且永远不会「越用越会干」。
+It was built to solve the thing agents are worst at: *finishing*. Agents are great at one file and terrible at "ship the whole project." They lose context, drift off-scope, loop forever on a bug, skip tests, and never get better at being an agent. Loop Engineering externalizes project state into a tiny `PROGRESS.md` (only what's needed *now*), runs each feature point in a **fresh-context sub-agent** so the main thread never bloats, enforces tests + review before anything counts as done, and wraps the whole thing in a **circuit-breaker** plus a **self-improving meta-loop**.
 
-**The fix.** Loop Engineering externalizes project state into a tiny `PROGRESS.md` (only what's needed *now*), runs each feature point in a **fresh-context sub-agent** (so the main thread never bloats), enforces tests + review before anything counts as done, and adds a **circuit-breaker** plus a **self-improving meta-loop**.
+It is a *meta*-skill: it orchestrates, and a bundle of companion skills (three-axis review, stuck-state reset, pre-implementation adversarial review, TDD implementation, bug-fix, testing, PRD, and session handoff) do the actual work. All are included, so the repo is self-contained. The `SKILL.md` format is the Anthropic Agent Skills format, so it loads in Claude Code, CodeBuddy/WorkBuddy, and any agent that reads `SKILL.md`.
 
-**解法**：循环工程把项目状态外置到一个极小的 `PROGRESS.md`（只保留「现在需要什么」），每个功能点都在**全新上下文的子代理**里跑（主线程永不膨胀），强制「先测试+审查才算完成」，并加入**熔断机制**与**自我改进的元循环**。
+## 中文介绍
+
+**循环工程** 是一套「方法论 + 技能包」，把编程智能体从「一次性的助手」升级为**自主工程循环**：你给目标，它把目标拆成功能点，派发全新上下文的子代理逐个实现，用测试验证、用三轴审查把关、用熔断机制防止死循环，并在**每次任务后**跑元循环**自我改进自身的规则**。
+
+它要解决的，正是智能体最弱的一环：*把事做完*。智能体改一个文件很在行，但「把整个项目交付」就不行了——上下文会爆、范围会漂、会在一个 bug 上死循环、会跳过测试，而且永远不会「越用越会干」。循环工程把项目状态外置到一个极小的 `PROGRESS.md`（只保留「现在需要什么」），每个功能点都在**全新上下文的子代理**里跑（主线程永不膨胀），强制「先测试 + 审查才算完成」，并叠加**熔断机制**与**自我改进的元循环**。
+
+它本质是**元技能**：负责编排，真正的活由一整套随附技能干——三轴审查、纾困复盘、方案审查、代码需求实现器、Bug修复、软件测试、生成PRD、会话交接，全部打包在内、开箱即用。`SKILL.md` 采用 Anthropic Agent Skills 格式，可被 Claude Code、CodeBuddy/WorkBuddy 及任何读取 `SKILL.md` 的智能体加载。
 
 ---
 
-## What it does · 能力一览
+## Features · 能力一览
 
 - **Autonomous loop** — Orchestrator dispatches Headless sub-agents; you only stop in three cases: blocked, circuit-break, or done.
   自主循环：主代理派发子代理，只有「阻塞 / 熔断 / 完成」三种情况才停下找你。
@@ -87,25 +70,27 @@ You ❯ loop: fix every failing test in this plugin, don't stop until green
 
 ---
 
-## Quick start · 安装
+## Install · 安装
 
-The `skills/` folder contains 9 ready-to-use skills. Copy them into your agent's skills directory — no build step, no dependencies.
+One line, no build step, no dependencies:
 
-`skills/` 目录内含 9 个开箱即用的技能。把它们复制进你的智能体技能目录即可，无需构建、无依赖。
+```bash
+# Linux / macOS — installs into Claude Code's global skills dir (~/.claude/skills)
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.sh)"
+
+# Windows (PowerShell) — installs into ~/.claude/skills
+irm https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.ps1 | iex
+```
+
+Both scripts accept an optional target directory, e.g. `install.sh /path/to/your-project/.agents/skills`.
+
+Prefer to copy by hand? The `skills/` folder holds 9 ready-to-use skills — drop them into your agent's skills directory:
 
 | Agent | Where to copy |
 | --- | --- |
+| **Claude Code** | `~/.claude/skills/` (global) or `skills/` (project) |
 | **CodeBuddy / WorkBuddy** | `.agents/skills/` |
-| **Claude Code** | `skills/` (project) or `~/.claude/skills/` (global) |
-| **Cursor / Windsurf** | point your rules at the `SKILL.md` files, or import via the skills loader |
-
-```bash
-# Example: install into a CodeBuddy/WorkBuddy project
-cp -r skills/*  /path/to/your-project/.agents/skills/
-
-# Example: install globally for Claude Code
-cp -r skills/*  ~/.claude/skills/
-```
+| **Cursor / Windsurf** | point your rules at the `SKILL.md` files, or use the skills loader |
 
 Then just say:
 
@@ -197,10 +182,9 @@ See [`examples/`](examples/) for copy-paste material:
 
 ## Roadmap · 路线
 
-- Pre-built regression task suites per companion skill
-- A one-command installer (`install.sh` / `install.ps1`)
 - Metrics export (loops used, tokens, breakers triggered) for self-improvement dashboards
 - English-localized companion skills alongside the Chinese originals
+- More pre-built regression task suites per companion skill
 
 ---
 
