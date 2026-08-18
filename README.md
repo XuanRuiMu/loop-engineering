@@ -1,6 +1,6 @@
 # Loop Engineering · 循环工程
 
-> 让任意智能体把一个目标自主循环成「已测试、已审查、可交付」的成果，并在每次任务后自我改进。
+> 在 TRAE、WorkBuddy 这类工具中，使用较低等级模型的情况下，让普通 AI 大模型用「更多的 token 和更长的时间」，换取出货质量比肩世界级顶级模型的水平。
 
 [![Stars](https://img.shields.io/github/stars/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/stargazers)
 [![License: MIT](https://img.shields.io/github/license/XuanRuiMu/loop-engineering)](LICENSE)
@@ -13,34 +13,48 @@
 
 ---
 
-## 运行效果
+## 一个真实例子：用循环工程写一个 csv2json 工具
 
-```
-You ❯ loop: fix every failing test in this plugin, don't stop until green
+你只下一条指令：
 
-↻ Loop Engineering started
-  ▸ Phase 1  Goal: all tests pass · stop = 0 failures · breaker = 30 loops
-  ▸ Phase 2  12 feature points written to PROGRESS.md
-  ▸ Phase 3  autonomous loop…
-     FP-01  sub-agent → TDD + tests      ✅ 14/14  (summarized, context freed)
-     FP-02  sub-agent → TDD + tests      ✅ 11/11  (summarized, context freed)
-     FP-07  sub-agent → blocked, retried 5× → circuit-break ⚡
-             → 纾困复盘: wrong API was assumed → re-planned
-     FP-07  re-dispatched (fresh context) → ✅ 9/9
-     … 10/12 done, 2 skipped (out of scope)
-  ▸ Phase 4  Self-Harness: found 1 weakness → auto-patched a harness rule
-  ✓ Delivered: 10 done · 2 skipped · 0 blocked · loops used 14 / 30
+> loop: 写一个 Python 命令行工具 csv2json，把 CSV 转成 JSON；要带单元测试、CLI 参数（-i 输入、-o 输出、支持 stdin）、错误处理。停止条件 = pytest 全过 + 三轴审查无阻塞。
+
+循环工程把它跑成下面这样一次自主循环：
+
+**① 目标定义** —— 拆出可验证停止条件：`pytest` 全绿、`ruff` 零报错、三轴审查无阻塞项；熔断预算 20 轮；范围边界「不做 GUI、不接数据库」。
+
+**② 任务拆解** —— 写入极小的 `PROGRESS.md`（主线程唯一的状态）：
+
+```text
+FP-1 CLI 参数解析（-i / -o / stdin）
+FP-2 CSV 读取（编码探测 + 表头）
+FP-3 JSON 输出（ensure_ascii=False）
+FP-4 单元测试（正常 / 空文件 / 坏 CSV）
+FP-5 错误处理（异常不崩、给可读报错）
 ```
+
+**③ 自主循环** —— 主代理读进度、派发全新上下文子代理，每个子代理只回简短摘要：
+
+```text
+FP-1 子代理 → TDD        ✅ 6/6 测试通过
+FP-2 子代理 → TDD        ✅ 4/4 测试通过
+FP-3 子代理 → 实现       ⚠ 三轴审查拦截：JSON 用了默认 ensure_ascii=True，
+                            中文被转成 \uXXXX → 回写修复 ✅
+FP-4 子代理 → TDD        ✅ 9/9 测试通过
+FP-5 子代理 → 实现       ✅ 边界覆盖；坏 CSV 触发熔断重试 1 次 → 重派发 ✅
+```
+
+每完成一个功能点，`PROGRESS.md` 只保留「已完成」和「下一步需要什么」，主线程上下文永不膨胀。
+
+**④ 交付 + 自我改进** —— 全量测试绿、三轴审查通过；元循环从本次任务挖到一条规律：「凡涉及文件读写，子代理常漏编码处理或异常分支」，于是自动补了一条 harness 规则「文件类功能点强制在三轴审查里核对编码与异常清单」。下次同类任务直接受益。
+
+整个过程你只说过一次目标，没有盯着它改；一个较低等级模型，靠「更多 token + 更长时间 + 强制验证」，交出了和顶级模型同级的成品。
 
 ---
 
 ## 介绍
 
-**循环工程** 是一套「方法论 + 技能包」，它的核心主张只有一句：
-
-> **在 TRAE、WorkBuddy 这类内置中低等级模型的工具里，让普通 AI 大模型用「更多的 token 和更长的时间」，换取出货质量比肩世界级顶级模型的水平。**
-
-顶级模型很贵、也很聪明；但大多数日常工具（TRAE、WorkBuddy、Cursor、Claude Code 等）默认跑的是更便宜的中低等级模型。循环工程不靠换模型，而是靠**工程化约束**把质量拉满：
+**循环工程** 是一套「方法论 + 技能包」。顶级模型很贵、也很聪明；但大多数日常工具（TRAE、WorkBuddy、Cursor、Claude Code 等）默认跑的是更便宜的较低等级模型。循环工程不靠换模型，而是靠**工程化约束**把质量拉满：
 
 - 你给一个目标，它把目标拆成功能点，派发**全新上下文**的子代理逐个实现；
 - 每个功能点都必须**先跑测试、再跑三轴审查**才算完成，绝不「声称做完」；
@@ -147,10 +161,10 @@ irm https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.ps
 
 **写小说、写音乐也能用循环工程吗？** 能。循环本身是通用的——任何能被拆成「可验证步骤 + 明确停止条件」的创造性或生产性任务都能用，举几个非代码的例子：
 
-- **写长篇小说**：`loop: 把这本 30 万字小说按大纲拆成章节，逐章写，每章跑三轴审查（人物声纹一致性 / 情节逻辑 / 文风签名），人设前后矛盾就熔断回写。` 中低等级模型靠多轮循环 + 逐章审查，照样能写出人物稳定、伏笔回收、文风统一的成稿，而不是一次生成就崩。
+- **写长篇小说**：`loop: 把这本 30 万字小说按大纲拆成章节，逐章写，每章跑三轴审查（人物声纹一致性 / 情节逻辑 / 文风签名），人设前后矛盾就熔断回写。` 较低等级模型靠多轮循环 + 逐章审查，照样能写出人物稳定、伏笔回收、文风统一的成稿，而不是一次生成就崩。
 - **写音乐 / 专辑**：`loop: 写一张 10 首歌的专辑，逐首生成，每首跑审查（和声进行 / 曲式结构 / 主题动机统一 / 编曲层次），主题动机前后不统一就重做。` 模型用更多 token 把「一首还行」打磨成「整张概念统一」。
 - **写研究报告 / 论文**：`loop: 把这份课题拆成文献综述、方法、实验、讨论，逐节写并跑事实核查与引用审查，数据来源缺失就标记阻塞。`
 
-核心思路一致：**用更便宜的模型 + 更多循环轮次 + 强制验证，换世界级产出**。这正是它在 TRAE、WorkBuddy 这类中低等级模型工具里价值最大的原因。
+核心思路一致：**用更便宜的模型 + 更多循环轮次 + 强制验证，换世界级产出**。
 
 **子代理卡住了怎么办？** 修复 5 次仍失败就标记为阻塞，主代理跳过继续；若它阻塞了后续所有依赖项，循环停下，并在方向性问题时先跑纾困复盘再汇报。
