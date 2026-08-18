@@ -1,6 +1,5 @@
 # Loop Engineering · 循环工程
 
-> Make any coding agent autonomously loop a goal into shipped, tested, and reviewed features — then improve itself.
 > 让任意编程智能体把一个目标自主循环成「已测试、已审查、可交付」的功能，并在每次任务后自我改进。
 
 [![Stars](https://img.shields.io/github/stars/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/stargazers)
@@ -10,9 +9,11 @@
 [![Repo Size](https://img.shields.io/github/repo-size/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering)
 [![Type](https://img.shields.io/badge/type-agent--skill-blue)](https://github.com/XuanRuiMu/loop-engineering)
 
+> 🌐 简体中文 ｜ [English](README_EN.md)
+
 ---
 
-## What it looks like · 运行效果
+## 运行效果
 
 ```
 You ❯ loop: fix every failing test in this plugin, don't stop until green
@@ -33,14 +34,6 @@ You ❯ loop: fix every failing test in this plugin, don't stop until green
 
 ---
 
-## Introduction
-
-**Loop Engineering** is a methodology + skill pack that turns a coding agent from a "one-shot assistant" into an **autonomous engineering loop**. You set a goal; it breaks the goal into feature points, dispatches fresh-context sub-agents to implement each one, verifies the result with tests, runs a three-axis code review, circuit-breaks on runaway loops, and — after every single task — runs a meta-loop that **improves its own rules**.
-
-It was built to solve the thing agents are worst at: *finishing*. Agents are great at one file and terrible at "ship the whole project." They lose context, drift off-scope, loop forever on a bug, skip tests, and never get better at being an agent. Loop Engineering externalizes project state into a tiny `PROGRESS.md` (only what's needed *now*), runs each feature point in a **fresh-context sub-agent** so the main thread never bloats, enforces tests + review before anything counts as done, and wraps the whole thing in a **circuit-breaker** plus a **self-improving meta-loop**.
-
-It is a *meta*-skill: it orchestrates, and a bundle of companion skills (three-axis review, stuck-state reset, pre-implementation adversarial review, TDD implementation, bug-fix, testing, PRD, and session handoff) do the actual work. All are included, so the repo is self-contained. The `SKILL.md` format is the Anthropic Agent Skills format, so it loads in Claude Code, CodeBuddy/WorkBuddy, and any agent that reads `SKILL.md`.
-
 ## 中文介绍
 
 **循环工程** 是一套「方法论 + 技能包」，把编程智能体从「一次性的助手」升级为**自主工程循环**：你给目标，它把目标拆成功能点，派发全新上下文的子代理逐个实现，用测试验证、用三轴审查把关、用熔断机制防止死循环，并在**每次任务后**跑元循环**自我改进自身的规则**。
@@ -51,62 +44,56 @@ It is a *meta*-skill: it orchestrates, and a bundle of companion skills (three-a
 
 ---
 
-## Features · 能力一览
+## 能力一览
 
-- **Autonomous loop** — Orchestrator dispatches Headless sub-agents; you only stop in three cases: blocked, circuit-break, or done.
-  自主循环：主代理派发子代理，只有「阻塞 / 熔断 / 完成」三种情况才停下找你。
-- **Context-wall proof** — State lives in `PROGRESS.md`, not in any LLM window. Sub-agents use fresh contexts and return only short summaries.
-  抗上下文爆炸：状态在文件里，不在对话里；子代理用全新上下文，只回简短摘要。
-- **Verifiable stop conditions** — "optimize it" is rejected; "all tests pass + lint clean" is required.
-  可验证停止条件：拒绝「优化一下」这种模糊目标，必须是「测试全过 + lint 零报错」。
-- **Circuit-breaker** — Same bug fixed 5× → skip. Total loops hit cap → stop and report. No infinite loops.
-  熔断机制：同一问题修 5 次仍失败就跳过；总轮次到上限就停下汇报。不死循环。
-- **Three-axis review (mandatory)** — Standards + Spec + BlindSpot, run as parallel sub-agents, never skipped.
-  三轴审查（强制）：规范轴 + 规格轴 + 盲区轴，并行子代理执行，绝不跳过。
-- **Self-Harness meta-loop** — After each task, it mines its own failure patterns and patches its own rules (graded auto / confirm / forbidden).
-  元循环自检：每次任务后挖掘自身失败模式，按级别自动/待确认/禁止自动地改进自身 harness。
-- **Contract coordination** — Cross-feature API/schema changes are tracked as deltas so parallel sub-agents don't build on stale assumptions.
-  契约协调：跨功能点的公开契约变更以增量记录，避免并行子代理基于旧假设实现。
+- **自主循环**：主代理派发子代理，只有「阻塞 / 熔断 / 完成」三种情况才停下找你。
+- **抗上下文爆炸**：状态在文件里，不在对话里；子代理用全新上下文，只回简短摘要。
+- **可验证停止条件**：拒绝「优化一下」这种模糊目标，必须是「测试全过 + lint 零报错」。
+- **熔断机制**：同一问题修 5 次仍失败就跳过；总轮次到上限就停下汇报。不死循环。
+- **三轴审查（强制）**：规范轴 + 规格轴 + 盲区轴，并行子代理执行，绝不跳过。
+- **元循环自检**：每次任务后挖掘自身失败模式，按级别自动 / 待确认 / 禁止自动地改进自身 harness。
+- **契约协调**：跨功能点的公开契约变更以增量记录，避免并行子代理基于旧假设实现。
 
 ---
 
-## Install · 安装
+## 安装
 
-One line, no build step, no dependencies:
+一行命令，无构建步骤，无依赖：
 
 ```bash
-# Linux / macOS — installs into Claude Code's global skills dir (~/.claude/skills)
+# Linux / macOS —— 安装到 Claude Code 的全局技能目录（~/.claude/skills）
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.sh)"
 
-# Windows (PowerShell) — installs into ~/.claude/skills
+# Windows（PowerShell）—— 安装到 ~/.claude/skills
 irm https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.ps1 | iex
 ```
 
-Both scripts accept an optional target directory, e.g. `install.sh /path/to/your-project/.agents/skills`.
+两条脚本都接受可选的目标目录，例如 `install.sh /path/to/your-project/.agents/skills`。
 
-### Or download the zip (Release) · 或下载压缩包
+### 或下载压缩包
 
-No script, no network tooling — grab `loop-engineering-skills.zip` from the [Releases page](https://github.com/XuanRuiMu/loop-engineering/releases) and unzip it straight into your skills directory:
+不用脚本、无需联网工具——从 [Releases 页](https://github.com/XuanRuiMu/loop-engineering/releases) 下载 `loop-engineering-skills.zip`，直接解压进技能目录即可：
 
 ```bash
-# 1) download loop-engineering-skills.zip from the release, then:
+# 1) 从 Releases 下载 loop-engineering-skills.zip，然后：
 unzip loop-engineering-skills.zip -d ~/.agents/skills     # CodeBuddy / WorkBuddy
-# or
+# 或者
 unzip loop-engineering-skills.zip -d ~/.claude/skills      # Claude Code
 ```
 
-The zip's top level *is* the 9 skill folders, so one unzip drops them all in. Re-download anytime to upgrade.
-不用脚本、无需联网工具——从 [Releases 页](https://github.com/XuanRuiMu/loop-engineering/releases) 下载 `loop-engineering-skills.zip`，直接解压进技能目录即可。压缩包顶层就是 9 个技能文件夹，一次解压全部就位；想升级随时重新下载。
+压缩包顶层就是 9 个技能文件夹，一次解压全部就位；想升级随时重新下载。
 
-Prefer to copy by hand? The `skills/` folder holds 9 ready-to-use skills — drop them into your agent's skills directory:
+### 想手动复制？
 
-| Agent | Where to copy |
+`skills/` 目录里就是 9 个开箱即用的技能，把它们放进对应智能体的技能目录即可：
+
+| 智能体 | 复制到哪里 |
 | --- | --- |
-| **Claude Code** | `~/.claude/skills/` (global) or `skills/` (project) |
+| **Claude Code** | `~/.claude/skills/`（全局）或 `skills/`（项目） |
 | **CodeBuddy / WorkBuddy** | `.agents/skills/` |
-| **Cursor / Windsurf** | point your rules at the `SKILL.md` files, or use the skills loader |
+| **Cursor / Windsurf** | 把 rules 指向各 `SKILL.md`，或使用 skills loader |
 
-Then just say:
+然后直接说：
 
 > **"循环工程：把这个项目的所有测试失败修复，直到全部通过"**
 > **"loop：给某插件添加 5 个新法术，自主循环直到全部实现并通过测试"**
@@ -115,109 +102,95 @@ Then just say:
 
 ---
 
-## How it works · 工作原理
+## 工作原理
 
-Four phases, with a circuit-breaker and a self-improvement loop wrapped around them:
+四个阶段，外面再裹一层熔断机制与自我改进循环：
 
-1. **Goal definition** — turn the request into a verifiable stop condition + circuit-breaker budget + explicit scope boundaries ("do / don't / never touch").
-   目标定义：把需求变成可验证停止条件 + 熔断预算 + 明确的范围边界。
-2. **Decomposition** — split into coarse feature points, written into a *compact* `PROGRESS.md`.
-   任务拆解：拆成粗粒度功能点，写入精简的 `PROGRESS.md`。
-3. **Autonomous loop (core)** — Orchestrator reads `PROGRESS.md`, picks the next ready feature point, dispatches a Headless sub-agent, receives a short summary, compresses the entry, repeats. Dependency and contract checks run before each dispatch.
-   自主循环（核心）：主代理读进度、选下一个功能点、派发子代理、收简短摘要、压缩记录、循环。派发前做依赖与契约校验。
-4. **Delivery** — re-run the full test suite, run the **Self-Harness meta-loop**, then deliver via `AskUserQuestion` with a complete report; optionally clean up process files.
-   交付确认：重跑全量测试、跑元循环自检，再用 `AskUserQuestion` 交付完整报告，并按需清理过程文件。
+1. **目标定义**：把需求变成可验证停止条件 + 熔断预算 + 明确的范围边界（"做 / 不做 / 绝不碰"）。
+2. **任务拆解**：拆成粗粒度功能点，写入精简的 `PROGRESS.md`。
+3. **自主循环（核心）**：主代理读进度、选下一个功能点、派发子代理、收简短摘要、压缩记录、循环。派发前做依赖与契约校验。
+4. **交付确认**：重跑全量测试、跑元循环自检，再用 `AskUserQuestion` 交付完整报告，并按需清理过程文件。
 
-**Circuit-breaker** stops the loop on: same problem fixed 5×, total loops at cap, a blocking feature that everything depends on, or token budget exceeded.
 **熔断机制**在以下情况停下：同一问题修 5 次、总轮次到上限、关键功能点阻塞、或 token 预算耗尽。
 
-**Self-Harness** mines reusable failure patterns from the just-finished task (with evidence, never fabricated), proposes harness-level fixes, validates them against a regression task suite, and applies auto-grade fixes — then reports confirm-grade fixes to you.
 **元循环**从刚完成的任务中挖掘可复用的失败模式（必须有证据，禁止编造），提出 harness 层修复，用回归任务集验证，自动级直接落地，待确认级交给你决策。
 
 ---
 
-## Companion skill pack · 随附技能包
-
-Loop Engineering is a *meta*-skill: it orchestrates, the companions do the work. All are bundled so the repo is self-contained.
+## 随附技能包
 
 循环工程是**元技能**：它负责编排，随附技能负责具体干活。全部打包在内，开箱即用。
 
-| Skill | Role in the loop | 在循环中的角色 |
-| --- | --- | --- |
-| **循环工程** (this one) | Orchestrator + Headless loop, circuit-breaker, Self-Harness | 编排 + 循环 + 熔断 + 元循环 |
-| **三轴审查** | Mandatory code review: Standards / Spec / BlindSpot (parallel sub-agents) | 强制三轴代码审查 |
-| **纾困复盘** | Direction reset when stuck / circuit-broken | 卡顿/熔断时的方向复盘 |
-| **方案审查** | Adversarial pre-implementation review (quick / deep / grill modes) | 实施前的对抗性审查 |
-| **代码需求实现器** | TDD feature implementation dispatched to sub-agents | 子代理用的 TDD 实现 |
-| **Bug修复** | Diagnosis + fix flow dispatched to sub-agents | 子代理用的修复流程 |
-| **软件测试** | Test execution + verification | 测试执行与验证 |
-| **生成PRD** | Fine-grained decomposition when needed | 复杂任务细化拆解 |
-| **会话交接** | Hand context to a new session for cross-session runs | 跨会话续跑交接 |
+| 技能 | 在循环中的角色 |
+| --- | --- |
+| **循环工程**（本技能）| 编排 + 循环 + 熔断 + 元循环 |
+| **三轴审查** | 强制三轴代码审查（规范 / 规格 / 盲区，并行子代理）|
+| **纾困复盘** | 卡顿 / 熔断时的方向复盘 |
+| **方案审查** | 实施前的对抗性审查（quick / deep / grill 三档）|
+| **代码需求实现器** | 派发给子代理的 TDD 实现 |
+| **Bug修复** | 派发给子代理的诊断 + 修复流程 |
+| **软件测试** | 测试执行与验证 |
+| **生成PRD** | 复杂任务细化拆解 |
+| **会话交接** | 跨会话续跑的上下文交接 |
 
 ---
 
-## Examples · 示例
+## 示例
 
-See [`examples/`](examples/) for copy-paste material:
+见 [`examples/`](examples/) 中的可复制素材：
 
-- [`examples/PROGRESS.sample.md`](examples/PROGRESS.sample.md) — a filled-in `PROGRESS.md` for a real refactor.
-- [`examples/loop-transcript.sample.md`](examples/loop-transcript.sample.md) — a full annotated loop session.
+- [`examples/PROGRESS.sample.md`](examples/PROGRESS.sample.md) —— 一个真实重构任务填好的 `PROGRESS.md`。
+- [`examples/loop-transcript.sample.md`](examples/loop-transcript.sample.md) —— 一段完整的带注释循环会话。
 
 ---
 
-## Compared to the alternatives · 对比
+## 对比
 
-| Capability | Vanilla agent | You babysitting | **Loop Engineering** |
+| 能力 | 裸用智能体 | 你盯着保姆式 | **循环工程** |
 | --- | --- | --- | --- |
-| Finishes without you | No | Sometimes | **Yes** |
-| Survives the context window | No | Sometimes | **Yes** (fresh-context sub-agents) |
-| Stops runaway loops | No | Sometimes | **Yes** (circuit-breaker) |
-| Tests before claiming done | Sometimes | Sometimes | **Yes** (mandatory) |
-| Code review on every change | No | Sometimes | **Yes** (3-axis) |
-| Improves itself over time | No | No | **Yes** (Self-Harness) |
+| 不用你盯着也能做完 | 否 | 有时 | **是** |
+| 扛得住上下文窗口 | 否 | 有时 | **是**（全新上下文子代理）|
+| 止住失控死循环 | 否 | 有时 | **是**（熔断机制）|
+| 声称完成前先跑测试 | 有时 | 有时 | **是**（强制）|
+| 每次改动都做代码审查 | 否 | 有时 | **是**（三轴）|
+| 随时间自我改进 | 否 | 否 | **是**（元循环）|
 
 ---
 
-## FAQ
-
-**Does it work with Claude Code?** Yes. The `SKILL.md` format (YAML `name` + `description` frontmatter) is the Anthropic Agent Skills format, so it loads in Claude Code, CodeBuddy/WorkBuddy, and any agent that reads `SKILL.md`.
+## 常见问题
 
 **它兼容 Claude Code 吗？** 兼容。`SKILL.md` 用的是 Anthropic Agent Skills 格式（YAML 前置 `name` + `description`），可被 Claude Code、CodeBuddy/WorkBuddy 及任何读取 `SKILL.md` 的智能体加载。
 
-**Is it only for code?** The loop is generic; the bundled companions target software tasks, but you can wire in your own skills at the dispatch mapping.
-
 **只能用于写代码吗？** 循环本身是通用的；随附技能面向软件任务，但你可以在派发映射里接入自己的技能。
-
-**What if a sub-agent gets stuck?** After 5 failed fix attempts it's marked blocked, the Orchestrator skips it and continues; if it blocks everything downstream, the loop stops and (on a direction problem) runs 纾困复盘 before reporting.
 
 **子代理卡住了怎么办？** 修复 5 次仍失败就标记为阻塞，主代理跳过继续；若它阻塞了后续所有依赖项，循环停下，并在方向性问题时先跑纾困复盘再汇报。
 
 ---
 
-## Roadmap · 路线
+## 路线
 
-- Metrics export (loops used, tokens, breakers triggered) for self-improvement dashboards
-- English-localized companion skills alongside the Chinese originals
-- More pre-built regression task suites per companion skill
-
----
-
-## Contributing · 贡献
-
-Bug fixes, new companion skills, and better harness rules are all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). The Self-Harness philosophy applies here too: propose changes as evidence-backed, graded fixes.
+- 指标导出（已用轮次、token、触发熔断次数）用于自我改进看板
+- 在中文原版之外提供英文版随附技能
+- 为每个随附技能补充更多预置回归任务集
 
 ---
 
-## License · 许可证
+## 贡献
 
-[MIT](LICENSE) — do whatever you want, just keep the attribution. 随意使用，保留署名即可。
+Bug 修复、新随附技能、更好的 harness 规则都欢迎。见 [CONTRIBUTING.md](CONTRIBUTING.md)。元循环理念在这里同样适用：把改动作为「有证据支撑、分级处理」的修复来提议。
 
 ---
 
-## Connect · 关注
+## 许可证
 
-- Star the repo if Loop Engineering saved you a context window. ⭐
-- File issues for failure patterns you'd like the harness to handle.
-- Share your best "loop:" prompts in Discussions.
+[MIT](LICENSE) —— 随便用，保留署名即可。
 
-Built as a self-improving methodology. The repo itself runs Loop Engineering's Self-Harness after every release.
+---
+
+## 关注
+
+- 如果循环工程帮你省下了上下文窗口，给仓库点个 Star。⭐
+- 遇到想让 harness 处理的失败模式，尽管提 Issue。
+- 在 Discussions 里分享你最得意的 "loop:" 提示词。
+
+本项目本身就是一套自我改进的方法论。每次发版后，仓库都会跑一遍循环工程的元循环。
