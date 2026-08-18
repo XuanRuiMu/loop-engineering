@@ -81,6 +81,19 @@ unzip loop-engineering-skills.zip -d ~/.agents/skills     # CodeBuddy / WorkBudd
 unzip loop-engineering-skills.zip -d ~/.claude/skills      # Claude Code
 ```
 
+校验和（下载后核对完整性，**可选**）：
+
+```
+SHA256: 28b29f6b9673948d47a4db3c1cd4820533ce9425cb7d4af4d9236b88a0183664
+```
+
+```bash
+# Linux / macOS
+sha256sum loop-engineering-skills.zip
+# Windows（PowerShell）
+Get-FileHash loop-engineering-skills.zip -Algorithm SHA256
+```
+
 压缩包顶层就是 9 个技能文件夹，一次解压全部就位；想升级随时重新下载。
 
 ### 想手动复制？
