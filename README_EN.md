@@ -81,6 +81,19 @@ unzip loop-engineering-skills.zip -d ~/.agents/skills     # CodeBuddy / WorkBudd
 unzip loop-engineering-skills.zip -d ~/.claude/skills      # Claude Code
 ```
 
+Checksum (verify integrity after download, **optional**):
+
+```
+SHA256: 28b29f6b9673948d47a4db3c1cd4820533ce9425cb7d4af4d9236b88a0183664
+```
+
+```bash
+# Linux / macOS
+sha256sum loop-engineering-skills.zip
+# Windows (PowerShell)
+Get-FileHash loop-engineering-skills.zip -Algorithm SHA256
+```
+
 The zip's top level *is* the 9 skill folders, so one unzip drops them all in. Re-download anytime to upgrade.
 
 ### Prefer to copy by hand?
