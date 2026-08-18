@@ -1,6 +1,6 @@
 # Loop Engineering
 
-> Turn any coding agent into an autonomous engineering loop that ships tested, reviewed, and delivered features — then improves itself.
+> Turn any agent into an autonomous loop that ships tested, reviewed, and delivered work — then improves itself.
 
 [![Stars](https://img.shields.io/github/stars/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/stargazers)
 [![License: MIT](https://img.shields.io/github/license/XuanRuiMu/loop-engineering)](LICENSE)
@@ -36,11 +36,20 @@ You ❯ loop: fix every failing test in this plugin, don't stop until green
 
 ## Introduction
 
-**Loop Engineering** is a methodology + skill pack that turns a coding agent from a "one-shot assistant" into an **autonomous engineering loop**. You set a goal; it breaks the goal into feature points, dispatches fresh-context sub-agents to implement each one, verifies the result with tests, runs a three-axis code review, circuit-breaks on runaway loops, and — after every single task — runs a meta-loop that **improves its own rules**.
+**Loop Engineering** is a methodology + skill pack with one core thesis:
 
-It was built to solve the thing agents are worst at: *finishing*. Agents are great at one file and terrible at "ship the whole project." They lose context, drift off-scope, loop forever on a bug, skip tests, and never get better at being an agent. Loop Engineering externalizes project state into a tiny `PROGRESS.md` (only what's needed *now*), runs each feature point in a **fresh-context sub-agent** so the main thread never bloats, enforces tests + review before anything counts as done, and wraps the whole thing in a **circuit-breaker** plus a **self-improving meta-loop**.
+> **In tools like TRAE and WorkBuddy that ship mid/low-tier models by default, let an ordinary AI model spend *more tokens and more time* to produce output that rivals the world's top-tier models.**
 
-It is a *meta*-skill: it orchestrates, and a bundle of companion skills (three-axis review, stuck-state reset, pre-implementation adversarial review, TDD implementation, bug-fix, testing, PRD, and session handoff) do the actual work. All are included, so the repo is self-contained. The `SKILL.md` format is the Anthropic Agent Skills format, so it loads in Claude Code, CodeBuddy/WorkBuddy, and any agent that reads `SKILL.md`.
+Top models are expensive and smart; most everyday tools (TRAE, WorkBuddy, Cursor, Claude Code…) default to cheaper mid/low-tier models. Loop Engineering doesn't swap the model — it uses **engineering constraints** to max out quality:
+
+- You set a goal; it breaks it into feature points and dispatches **fresh-context** sub-agents to implement each one.
+- Every feature point must pass **tests first, then a three-axis review** before it counts as done — no "I'm finished" without proof.
+- A **circuit-breaker** stops runaway loops on a single bug.
+- And after *every* task, a meta-loop **improves its own rules**.
+
+It was built to fix the thing agents are worst at: *finishing and getting it right*. Agents are great at one file and terrible at "ship the whole project" — they lose context, drift off-scope, loop forever on a bug, skip tests, and never get better at being an agent. Loop Engineering externalizes state into a tiny `PROGRESS.md` (only what's needed *now*), keeps the main thread from ever bloating, enforces verification + review, and wraps it all in a circuit-breaker plus a self-improving meta-loop.
+
+It is a *meta*-skill: it orchestrates, and a bundle of companion skills (three-axis review, stuck-state reset, pre-implementation adversarial review, TDD implementation, bug-fix, testing, PRD, and session handoff) do the actual work. All are included, so the repo is self-contained. The `SKILL.md` format is the Anthropic Agent Skills format, so it loads in Claude Code, CodeBuddy/WorkBuddy, TRAE, Cursor, and any agent that reads `SKILL.md`.
 
 ---
 
@@ -72,46 +81,13 @@ Both scripts accept an optional target directory, e.g. `install.sh /path/to/your
 
 ### Or download the zip
 
-No script, no network tooling — grab `loop-engineering-skills.zip` from the [Releases page](https://github.com/XuanRuiMu/loop-engineering/releases) and unzip it straight into your skills directory:
+Grab `loop-engineering-skills.zip` from the [Releases page](https://github.com/XuanRuiMu/loop-engineering/releases) and unzip it into your tool's skills directory:
 
-```bash
-# 1) download loop-engineering-skills.zip from the release, then:
-unzip loop-engineering-skills.zip -d ~/.agents/skills     # CodeBuddy / WorkBuddy
-# or
-unzip loop-engineering-skills.zip -d ~/.claude/skills      # Claude Code
-```
+- **CodeBuddy / WorkBuddy / TRAE** — unzip into `.agents/skills/`
+- **Claude Code** — unzip into `~/.claude/skills/` (global) or project `skills/`
+- **Cursor / Windsurf** — point your skills loader / rules at the `SKILL.md` files
 
-Checksum (verify integrity after download, **optional**):
-
-```
-SHA256: 28b29f6b9673948d47a4db3c1cd4820533ce9425cb7d4af4d9236b88a0183664
-```
-
-```bash
-# Linux / macOS
-sha256sum loop-engineering-skills.zip
-# Windows (PowerShell)
-Get-FileHash loop-engineering-skills.zip -Algorithm SHA256
-```
-
-The zip's top level *is* the 9 skill folders, so one unzip drops them all in. Re-download anytime to upgrade.
-
-### Prefer to copy by hand?
-
-The `skills/` folder holds 9 ready-to-use skills — drop them into your agent's skills directory:
-
-| Agent | Where to copy |
-| --- | --- |
-| **Claude Code** | `~/.claude/skills/` (global) or `skills/` (project) |
-| **CodeBuddy / WorkBuddy** | `.agents/skills/` |
-| **Cursor / Windsurf** | point your rules at the `SKILL.md` files, or use the skills loader |
-
-Then just say:
-
-> **"loop: fix every failing test in this project until all pass"**
-> **"loop: add 5 new spells to this plugin, run autonomously until all implemented and tested"**
-> **"autonomous loop: extract all Chinese hard-coded strings in this project to a translation file, keep going"**
-> **"auto-develop: refactor the auth module, advance feature point by feature point in dependency order, breaker cap 30"**
+The zip's top level *is* the 9 skill folders, so one unzip drops them all in. Re-download anytime to upgrade. (After download you can verify integrity with SHA256 `28b29f6b9673948d47a4db3c1cd4820533ce9425cb7d4af4d9236b88a0183664`.)
 
 ---
 
@@ -150,62 +126,33 @@ Loop Engineering is a *meta*-skill: it orchestrates, the companions do the work.
 
 ---
 
-## Examples
-
-See [`examples/`](examples/) for copy-paste material:
-
-- [`examples/PROGRESS.sample.md`](examples/PROGRESS.sample.md) — a filled-in `PROGRESS.md` for a real refactor.
-- [`examples/loop-transcript.sample.md`](examples/loop-transcript.sample.md) — a full annotated loop session.
-
----
-
 ## Compared to the alternatives
 
-| Capability | Vanilla agent | You babysitting | **Loop Engineering** |
+Loop Engineering's rivals aren't "another AI" — they're "you babysitting the AI" and "the single-goal directive your tool ships with."
+
+| Capability | Vanilla agent | Single-goal directive (e.g. Claude Code `/goal`, Codex `/目标`) | **Loop Engineering** |
 | --- | --- | --- | --- |
-| Finishes without you | No | Sometimes | **Yes** |
-| Survives the context window | No | Sometimes | **Yes** (fresh-context sub-agents) |
-| Stops runaway loops | No | Sometimes | **Yes** (circuit-breaker) |
-| Tests before claiming done | Sometimes | Sometimes | **Yes** (mandatory) |
-| Code review on every change | No | Sometimes | **Yes** (3-axis) |
+| Finishes without you | No | Partly | **Yes** (autonomous loop to stop condition) |
+| Survives the context window | No | No (single context blows up) | **Yes** (fresh-context sub-agents + PROGRESS.md) |
+| Stops runaway loops | No | Usually none | **Yes** (circuit-breaker) |
+| Tests + review before claiming done | Sometimes | Usually none | **Yes** (mandatory 3-axis) |
+| Bundled ready-to-use skill pack | No | No | **Yes** (9 skills included) |
 | Improves itself over time | No | No | **Yes** (Self-Harness) |
+
+> Versus other loop / automation skills, Loop Engineering's differentiator is that it ships a **full companion skill pack** (three-axis review, stuck-state reset, adversarial review, TDD implementer, bug-fix, testing, PRD, session handoff) and enforces "tests + 3-axis review before done" + circuit-breaker + self-improving meta-loop — not just an empty loop shell you have to fill yourself.
+
+> It does **not replace** Claude Code's `/goal` or Codex's `/目标`: you can run Loop Engineering *inside* those tools to upgrade a one-shot goal directive into an "reviewed, circuit-broken, self-improving" engineering loop.
 
 ---
 
 ## FAQ
 
-**Does it work with Claude Code?** Yes. The `SKILL.md` format (YAML `name` + `description` frontmatter) is the Anthropic Agent Skills format, so it loads in Claude Code, CodeBuddy/WorkBuddy, and any agent that reads `SKILL.md`.
+**Is it only for code?** No. The loop is generic — any creative or productive task that can be broken into *verifiable steps + an explicit stop condition* works. The bundled companions target software tasks by default, but you can wire your own skills into the dispatch mapping. A few non-code examples:
 
-**Is it only for code?** The loop is generic; the bundled companions target software tasks, but you can wire in your own skills at the dispatch mapping.
+- **Writing a novel** — `loop: split this 300k-word novel into chapters by outline, write chapter by chapter, run a three-axis review on each (character-voice consistency / plot logic / prose signature), circuit-break and rewrite on character contradictions.` A mid/low-tier model, through many loop iterations + per-chapter review, still produces a coherent manuscript with stable characters and consistent voice — instead of collapsing after one giant generation.
+- **Writing music / an album** — `loop: write a 10-track album, generate track by track, review each (harmonic progression / song structure / thematic-motif unity / arrangement depth), redo any track where the motif isn't consistent.` The model spends more tokens turning "one decent track" into "a conceptually unified album."
+- **Writing a research report / paper** — `loop: split this topic into literature / method / experiment / discussion, write each section and run fact-check + citation review, flag any missing data source as blocked.`
+
+The core idea is the same: **a cheaper model + more loop iterations + mandatory verification = world-class output.** That's exactly why it's most valuable inside mid/low-tier-model tools like TRAE and WorkBuddy.
 
 **What if a sub-agent gets stuck?** After 5 failed fix attempts it's marked blocked, the Orchestrator skips it and continues; if it blocks everything downstream, the loop stops and (on a direction problem) runs 纾困复盘 before reporting.
-
----
-
-## Roadmap
-
-- Metrics export (loops used, tokens, breakers triggered) for self-improvement dashboards
-- English-localized companion skills alongside the Chinese originals
-- More pre-built regression task suites per companion skill
-
----
-
-## Contributing
-
-Bug fixes, new companion skills, and better harness rules are all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). The Self-Harness philosophy applies here too: propose changes as evidence-backed, graded fixes.
-
----
-
-## License
-
-[MIT](LICENSE) — do whatever you want, just keep the attribution.
-
----
-
-## Connect
-
-- Star the repo if Loop Engineering saved you a context window. ⭐
-- File issues for failure patterns you'd like the harness to handle.
-- Share your best "loop:" prompts in Discussions.
-
-Built as a self-improving methodology. The repo itself runs Loop Engineering's Self-Harness after every release.
