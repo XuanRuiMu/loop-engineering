@@ -84,6 +84,20 @@ irm https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.ps
 
 Both scripts accept an optional target directory, e.g. `install.sh /path/to/your-project/.agents/skills`.
 
+### Or download the zip (Release) · 或下载压缩包
+
+No script, no network tooling — grab `loop-engineering-skills.zip` from the [Releases page](https://github.com/XuanRuiMu/loop-engineering/releases) and unzip it straight into your skills directory:
+
+```bash
+# 1) download loop-engineering-skills.zip from the release, then:
+unzip loop-engineering-skills.zip -d ~/.agents/skills     # CodeBuddy / WorkBuddy
+# or
+unzip loop-engineering-skills.zip -d ~/.claude/skills      # Claude Code
+```
+
+The zip's top level *is* the 9 skill folders, so one unzip drops them all in. Re-download anytime to upgrade.
+不用脚本、无需联网工具——从 [Releases 页](https://github.com/XuanRuiMu/loop-engineering/releases) 下载 `loop-engineering-skills.zip`，直接解压进技能目录即可。压缩包顶层就是 9 个技能文件夹，一次解压全部就位；想升级随时重新下载。
+
 Prefer to copy by hand? The `skills/` folder holds 9 ready-to-use skills — drop them into your agent's skills directory:
 
 | Agent | Where to copy |
