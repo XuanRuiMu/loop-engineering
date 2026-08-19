@@ -1,6 +1,6 @@
 # Loop Engineering · 循环工程
 
-> 在 TRAE、WorkBuddy 这类工具中，使用较低等级模型的情况下，让普通 AI 大模型用「更多的 token 和更长的时间」，换取出货质量比肩世界级顶级模型的水平。
+> 在 TRAE、WorkBuddy 等AI AGENT工具中，使用较低等级模型的情况下，赋予普通 AI 大模型指定的工作流，进行多角色执行任务，多次检查，用「更多的 token 和更长的时间」，换取出货质量比肩世界级顶级模型的水平。
 
 [![Stars](https://img.shields.io/github/stars/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/stargazers)
 [![License: MIT](https://img.shields.io/github/license/XuanRuiMu/loop-engineering)](LICENSE)
