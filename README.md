@@ -1,13 +1,16 @@
 # Loop Engineering · 循环工程
 
-> 在 TRAE、WorkBuddy 等AI AGENT工具中，使用较低等级模型的情况下，赋予普通 AI 大模型指定的工作流，进行多角色执行任务，多次检查，用「更多的 token 和更长的时间」，换取出货质量比肩世界级顶级模型的水平。
+> 在 TRAE、WorkBuddy 等 AI Agent 工具中，使用较低等级模型的情况下，赋予普通 AI 大模型指定的工作流，进行多角色执行任务，多次检查，用「更多的 token 和更长的时间」，换取出货质量比肩世界级顶级模型的水平。
 
 [![Stars](https://img.shields.io/github/stars/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/stargazers)
+[![Forks](https://img.shields.io/github/forks/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/forks)
 [![License: MIT](https://img.shields.io/github/license/XuanRuiMu/loop-engineering)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering/commits/main)
 [![Issues](https://img.shields.io/github/issues/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering/issues)
+[![Release](https://img.shields.io/github/v/release/XuanRuiMu/loop-engineering?logo=github)](https://github.com/XuanRuiMu/loop-engineering/releases)
 [![Repo Size](https://img.shields.io/github/repo-size/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering)
-[![Type](https://img.shields.io/badge/type-agent--skill-blue)](https://github.com/XuanRuiMu/loop-engineering)
+[![Type](https://img.shields.io/badge/type-meta--skill-orange)](https://github.com/XuanRuiMu/loop-engineering)
+[![Skills](https://img.shields.io/badge/skills-9-blueviolet)](https://github.com/XuanRuiMu/loop-engineering/tree/main/skills)
 
 > 🌐 简体中文 ｜ [English](README_EN.md)
 
@@ -76,6 +79,36 @@ FP-5 子代理 → 实现       ✅ 边界覆盖；坏 CSV 触发熔断重试 1 
 - **三轴审查（强制）**：规范轴 + 规格轴 + 盲区轴，并行子代理执行，绝不跳过。
 - **元循环自检**：每次任务后挖掘自身失败模式，按级别自动 / 待确认 / 禁止自动地改进自身 harness。
 - **契约协调**：跨功能点的公开契约变更以增量记录，避免并行子代理基于旧假设实现。
+- **补位机制**：子代理失败或产出不达标时，主代理可亲自补位（有次数预算），随后重新派发全新上下文子代理，防止锚定偏差。
+
+---
+
+## 仓库结构
+
+```text
+loop-engineering/
+├── README.md              # 本文档（中文）
+├── README_EN.md           # 英文版
+├── install.sh             # Linux / macOS 一键安装脚本
+├── install.ps1            # Windows 一键安装脚本
+├── LICENSE                # MIT 许可证
+└── skills/                # 9 个随附技能，全部开箱即用
+    ├── 循环工程/          # 元技能：编排 + 循环 + 熔断 + 元循环
+    │   ├── SKILL.md       # 技能主文档（Anthropic Agent Skills 格式）
+    │   ├── HARNESS.md     # harness 规则：铁律、补位、上下文墙
+    │   ├── BUDGET.md      # 熔断 / 轮次 / token 预算
+    │   ├── EVIDENCE.md    # 证据规范（禁止无证据声称完成）
+    │   └── references/    # 子代理提示词模板、PROGRESS 模板、Orchestrator-Headless 模式、
+    │                      # EnvironmentEngineering、前端验证技巧、harness 回归测试套件
+    ├── 三轴审查/          # 强制三轴代码审查（规范 / 规格 / 盲区，并行子代理）
+    ├── 纾困复盘/          # 卡顿 / 熔断时的方向复盘
+    ├── 方案审查/          # 实施前的对抗性审查（quick / deep / grill 三档）
+    ├── 代码需求实现器/    # 派发给子代理的 TDD 实现
+    ├── Bug修复/           # 派发给子代理的诊断 + 修复流程
+    ├── 软件测试/          # 测试执行与验证
+    ├── 生成PRD/           # 复杂任务细化拆解
+    └── 会话交接/          # 跨会话续跑的上下文交接
+```
 
 ---
 
@@ -157,6 +190,20 @@ irm https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.ps
 
 ---
 
+## 测试与回归
+
+`skills/循环工程/references/harness-test-suite` 内置了一整套 harness 回归测试（`run_all.py`），覆盖：
+
+- `PROGRESS.md` 精简与压缩契约
+- 子代理返回摘要的格式规范（简短短摘要、token 估算、失败标签）
+- 技能目录结构完整性
+- 证据（Evidence）结构规范
+- 元审查守卫
+
+每轮 `run_all.py` 全绿，是「循环工程自身没退化」的机器可验证保证。
+
+---
+
 ## 常见问题
 
 **写小说、写音乐也能用循环工程吗？** 能。循环本身是通用的——任何能被拆成「可验证步骤 + 明确停止条件」的创造性或生产性任务都能用，举几个非代码的例子：
@@ -168,3 +215,11 @@ irm https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.ps
 核心思路一致：**用更便宜的模型 + 更多循环轮次 + 强制验证，换世界级产出**。
 
 **子代理卡住了怎么办？** 修复 5 次仍失败就标记为阻塞，主代理跳过继续；若它阻塞了后续所有依赖项，循环停下，并在方向性问题时先跑纾困复盘再汇报。
+
+---
+
+## 许可证
+
+[MIT](LICENSE) © 2026 玄锐暮
+
+**Made with ❤️ by 玄锐暮** —— 让每个普通模型，都能交出世界级的成品。
