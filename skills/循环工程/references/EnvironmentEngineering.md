@@ -17,9 +17,10 @@
 
 | 路径/模式 | 用途 | 备注 |
 | --- | --- | --- |
-| `.agents/skills/循环工程/` | 循环工程 skill 自身目录 | 所有 skill 产物必须在此目录内 |
+| 任务工作区 | 当前任务涉及的源码、测试、配置等目标路径 | 写入范围由任务目标与 PROGRESS.md『范围边界』（做什么/不做什么/禁止触碰）共同定义；子代理仅触碰当前功能点涉及的路径（最小权限） |
+| `.agents/skills/循环工程/` | 循环工程 skill 自身目录 | skill 自管理产物（harness 组件、references、回归测试）必须在此目录内 |
 | `.agents/skills/循环工程/references/` | references 文件 | 可新增/修改说明性 references 文件 |
-| `.agents/skills/循环工程/references/harness-test-suite/` | 回归任务集 | 可运行/新增回归测试 |
+| `.agents/skills/循环工程/references/harness-test-suite/` | 回归任务集 | 可运行/新增回归测试（受保护产物另受 §2.3 管辖） |
 | `.agents/evidence/` | 证据目录 | 按 EVIDENCE.md 结构化要求写入 |
 | 用户通过 `AskUserQuestion` 明确授权的特定文件 | 临时扩展 | 必须记录授权依据到 PROGRESS.md |
 
@@ -31,7 +32,7 @@
 | `AGENTS.md`（项目根目录） | 项目级通用规则，只能由用户明确授权后修改 | 违反 skill 隔离与禁止自动规则 |
 | `SKILL.md`（本 skill 核心流程） | 核心契约，禁止自动改写 | 违反 PROGRESS.md 当前决策 |
 | 其他 skill 的 `SKILL.md` | 不属于本 skill 范围 | 违反 skill 隔离 |
-| 项目源码（如插件代码、服务端代码等） | 本任务只改 skill 自身 | 违反 PROGRESS.md "不做什么" |
+| PROGRESS.md『范围边界/禁止触碰』节列出的路径（含循环启动基线快照追加的用户WIP文件） | 任务级范围边界由每次任务的 PROGRESS.md 定义，不由本文件固化（如"只改 skill 自身"的任务应把项目源码写入该节；项目开发任务则源码可改） | 违反任务范围边界或覆盖用户未提交修改 |
 | 工作区根目录下非白名单文件 | 避免污染项目根目录 | 必须在 skill 目录内产出 |
 | 宿主环境只读目录中的路径 | 物理只读边界 | 工具会拒绝写入 |
 
@@ -58,22 +59,32 @@ Headless Worker 在写入任何文件前必须执行：
 
 #### 路径前缀检查
 
-循环工程有两个写入作用域，二者均列入 §1.2 白名单。子代理写入前必须二选一校验，不得越出这两个作用域：
+循环工程有三个写入作用域，均列入 §1.2 白名单。子代理写入前必须三选一校验，不得越出这三个作用域：
 
-1. **Skill 自身产物**（harness 组件、references、回归测试等）：目标路径前缀必须为 skill 根目录 `.agents/skills/循环工程/`。
-2. **证据产物**（`.agents/evidence/` 下的 traces / proposals / validations）：目标路径前缀必须为 `.agents/evidence/`（注意：证据目录位于工作区根 `.agents/` 下，是 skill 根的**兄弟目录**，而非嵌套在 skill 根内）。
+1. **任务工作区**（任务涉及的源码/测试/配置）：目标路径必须属于任务目标与 PROGRESS.md『范围边界』圈定的路径，且不在『禁止触碰』节与 §1.3 黑名单中。
+2. **Skill 自身产物**（harness 组件、references、回归测试等）：目标路径前缀必须为 skill 根目录 `.agents/skills/循环工程/`。
+3. **证据产物**（`.agents/evidence/` 下的 traces / proposals / validations）：目标路径前缀必须为 `.agents/evidence/`（注意：证据目录位于工作区根 `.agents/` 下，是 skill 根的**兄弟目录**，而非嵌套在 skill 根内）。
 
 ```python
 from pathlib import Path
 skill_root = Path('.agents/skills/循环工程/').resolve()
 evidence_root = Path('.agents/evidence/').resolve()
+# 任务工作区根由任务目标与 PROGRESS.md 范围边界定义（如项目根），以 workspace_root 代指
 
 # 证据写入走 evidence_root
 target = (evidence_root / 'traces' / 'fp-xx.md').resolve()
-assert target.is_relative_to(evidence_root) or target.is_relative_to(skill_root), f'目标路径越界: {target}'
+assert target.is_relative_to(evidence_root) or target.is_relative_to(skill_root) or target.is_relative_to(workspace_root), f'目标路径越界: {target}'
 ```
 
-任何写入操作的目标路径必须位于上述两个作用域之一（前缀为 skill 根目录 `.agents/skills/循环工程/` 或证据根目录 `.agents/evidence/`），否则视为越界；不在白名单内的其他写入必须先 `AskUserQuestion`。
+任何写入操作的目标路径必须位于上述三个作用域之一，否则视为越界；不在白名单内的其他写入必须先 `AskUserQuestion`。
+
+### 1.6 用户 WIP 保护（未提交修改）
+
+循环启动时（见 SKILL.md 阶段3『循环启动基线快照』）已存在的未提交修改属于**用户 WIP**，不因本任务而存在，须受保护：
+
+- 主代理须将用户 WIP 文件清单追加到 PROGRESS.md『范围边界/禁止触碰』节（每行标注"用户WIP"）。该节是子代理受强制力约束的位置；**禁止**只记在『当前决策』——当前决策会被压缩规则删除，WIP 保护是持续性约束而非可失效决策。
+- 子代理禁止回退、覆盖或"顺手修复"用户 WIP 文件中的用户修改；因用户 WIP 导致的测试失败，在摘要中按 ⚠️ 环境限制上报（failure_tags: 依赖），由主代理上报用户裁决，禁止子代理改写用户代码来"修复"。
+- 该清单写入『禁止触碰』节是对『PROGRESS.md只写进度』铁律的结构化承载：它记录的是**当前约束状态**（哪些文件不能碰），不是本任务的"修改文件清单"过程记录，二者性质不同，不受该铁律的字面限制。
 
 ---
 
@@ -198,11 +209,13 @@ assert target.is_relative_to(evidence_root) or target.is_relative_to(skill_root)
 
 1. **阶段1目标定义完成**：向用户确认目标、停止条件、熔断上限。
 2. **阶段2任务拆解完成**：向用户确认 PROGRESS.md 内容。
-3. **熔断触发**：总循环次数/子代理调用次数/Wall-clock 时间/自估算 token 达到上限。
-4. **功能点阻塞**：同一问题修复超过 5 次，或后续功能点全部依赖阻塞项。
+3. **熔断触发**：BUDGET.md 定义的上限达到（总循环/子代理调用/Wall-clock/自估算 token/主代理补位次数）。
+4. **功能点阻塞**：同一问题第 5 次修复仍失败，或后续功能点全部依赖阻塞项。
 5. **Self-Harness 待确认/禁止自动提案**：元循环产生需要用户决策的提案。
 6. **阶段4交付确认**：目标达成，汇总结果并询问下一步。
 7. **任何超出白名单的写入请求**：必须先取得用户明确授权。
+8. **用户 WIP 冲突**：rebaseline 判"基线已坏"时发现脏态源于用户 WIP，或用户 WIP 导致测试失败需改写用户代码才能"修复"——须由用户裁决，禁止子代理自行处理。
+9. **用户排队消息裁决**：循环期收到重大计划变更（须重走阶段2确认）或全新无关目标（须确认优先级）的用户消息——见 SKILL.md 阶段3 用户排队消息处理。
 
 ### 4.4 用户沉默/超时/拒绝时的默认行为
 
@@ -231,7 +244,7 @@ Headless Worker 在完成功能点前必须自检以下四项：
 
 - [ ] Permissions：所有读取/写入路径均符合白名单且不在黑名单内。
 - [ ] Artifacts：修改已备份（Git stash/commit 或手动备份），证据目录结构正确。
-- [ ] Budget：当前子代理调用次数、Wall-clock 时间、自估算 token 均未超限。
+- [ ] Budget：本功能点内部修复次数未超 5 次；全局子代理调用次数与 Wall-clock 由主代理维护，子代理无需自检（也无从获知）。
 - [ ] Human-in-the-Loop：本功能点/提案的修改级别允许自动执行；若属于待确认/禁止自动，已获取用户授权。
 
 ---
@@ -239,7 +252,7 @@ Headless Worker 在完成功能点前必须自检以下四项：
 ## 6. 与现有文件的兼容性声明
 
 - 本文件不修改 `SKILL.md`、`AGENTS.md` 或其他 skill 的核心流程。
-- 本文件的白名单/黑名单与 PROGRESS.md 中"禁止触碰"和"不做什么"小节一致。
+- 本文件定义三个通用写入作用域（任务工作区/skill根/证据根），任务级边界由 PROGRESS.md『范围边界』定义，二者分层互补而非重复。
 - 本文件 Budget 维度不重复定义，统一以 BUDGET.md 为权威来源（见 §3）。
 - 本文件的证据目录结构与 EVIDENCE.md 一致。
 - 本文件的修改分级与 HARNESS.md 中"自动/待确认/禁止自动"三级规则一致。

@@ -6,12 +6,16 @@
 
 | 组件路径 | 作用 | 版本/最后修改时间 | 修改级别 |
 | --- | --- | --- | --- |
-| `SKILL.md` | 循环工程 skill 的主入口与完整工作流定义，包含 Orchestrator+Headless 模式、铁律、阶段跳过规则、完整工作流、停止条件、熔断规则与 Self-Harness 元循环 | 2026-08-16（新增补位熔断、契约变更协调、元循环独立审查、断点续跑rebaseline、契约变更清理增跳过/阻塞处理） | 禁止自动（必须先 AskUserQuestion 取得用户同意） |
-| `references/子代理提示词模板.md` | Headless Worker 的提示词模板，规定子代理必须读取 PROGRESS.md、返回简短结构化摘要、禁止写历史；含 token_estimate / failure_tags / evidence_link 字段、P0 规则自审、UUID/强类型参数前置校验、全中文命名检查、三轴审查结果输出、debug 日志安全自审与翻译模板修改测试同步自审等强制检查项 | 2026-07-17 | 待确认（改动返回结构，已获用户同意） |
-| `references/PROGRESS模板.md` | PROGRESS.md 的精简状态模板，规定只写当前状态、禁止写入历史/过程/文件清单 | — | 自动（仅格式模板调整，不改动业务规则） |
+| `SKILL.md` | 循环工程 skill 的主入口与完整工作流定义，包含 Orchestrator+Headless 模式、铁律、阶段跳过规则、完整工作流、停止条件、熔断规则与 Self-Harness 元循环 | 2026-09-10（新增 stall 熔断与 stall 重派规则，计数并入总循环/子代理调用、与单问题修复互斥；其余见 2026-09-02 记录） | 禁止自动（必须先 AskUserQuestion 取得用户同意） |
+| `references/子代理提示词模板.md` | Headless Worker 的提示词模板，规定子代理必须读取 PROGRESS.md、返回简短结构化摘要、禁止写历史；含 token_estimate / failure_tags / evidence_link 字段、P0 规则自审（含版本与依赖信息源优先级）、UUID/强类型参数前置校验、全中文命名检查、三轴审查结果输出、方向性假设拦截、验证三态报告、debug 日志安全自审与翻译模板修改测试同步自审等强制检查项 | 2026-09-02（三作用域路径校验、用户WIP约束、方向性假设拦截与返回字段、验证三态、修复阶梯、版本依赖信息源优先级） | 待确认（改动返回结构，已获用户同意） |
+| `references/PROGRESS模板.md` | PROGRESS.md 的精简状态模板，规定只写当前状态、禁止写入历史/过程/文件清单 | 2026-09-02（新增基线HEAD字段与禁止触碰节用户WIP行） | 待确认（纯格式调整仍为自动；调整 PROGRESS 字段为待确认级——本轮基线HEAD/用户WIP行字段变更已随任务目标获用户授权） |
 | `references/Orchestrator-Headless模式.md` | 核心架构原理说明，解释 Context Wall 问题与 Orchestrator+Headless 解法 | — | 禁止自动（架构原理变更须经用户确认） |
-| `references/EnvironmentEngineering.md` | Environment Engineering 四维规范，定义 Permissions/Artifacts/Budget/Human-in-the-loop 约束与检查清单 | 2026-07-08 | 待确认（涉及权限/预算/HITL 规则变更时须用户确认） |
+| `references/EnvironmentEngineering.md` | Environment Engineering 四维规范，定义 Permissions/Artifacts/Budget/Human-in-the-loop 约束与检查清单 | 2026-09-02（修复白名单/黑名单固化任务级约束的自相矛盾，改为三写入作用域；新增 §1.6 用户WIP保护；§4.3 增第8条用户WIP冲突停问） | 待确认（涉及权限/预算/HITL 规则变更时须用户确认） |
 | `AGENTS.md` | 项目级通用 AI 开发规则，所有子代理启动时必须先读 | 用户选择不改 | 禁止自动（必须先 AskUserQuestion 取得用户同意） |
+| `BUDGET.md` | Budget 维度权威来源，定义预算字段与熔断规则 | 2026-09-10（熔断规则表新增 stall 行：同FP stall 上限默认2，计入总循环/子代理调用、与单问题修复互斥） | 禁止自动（熔断默认值变更须用户授权；新增预算字段为待确认级） |
+| `EVIDENCE.md` | 历史失败证据索引，供 Weakness Mining 避免重复挖掘 | 2026-09-02 | 待确认（§2.3 受保护产物，历史证据禁止自动篡改） |
+| `references/前端验证技巧.md` | 前端验证实战经验（纯说明性） | 2026-08-12 | 自动（纯说明性 references） |
+| `HARNESS.md` | 组件清单与修改分级规则的权威来源 | 2026-09-02 | 待确认（自身分级调整须用户确认） |
 
 ## 修改分级规则
 
@@ -35,6 +39,19 @@ Headless Worker 在实现功能点前，除读取本 HARNESS.md 外，还应读�
 
 ## 兼容性声明
 
-- 本文件自身属于新增 references 文件，修改级别为 **自动**。
+- 本文件已列入上方组件清单（HARNESS.md 行），修改级别为待确认（自身分级调整须用户确认）。
 - 本文件不修改 `SKILL.md` 或 `AGENTS.md`，与 PROGRESS.md 中"不自动改写 SKILL.md / AGENTS.md"的决策兼容。
 - 本文件所列组件清单包含 `references/EnvironmentEngineering.md`；新增或调整 harness 组件时，其版本与修改级别需在此同步更新。
+
+## 本次修改记录（2026-09-19，用户 AskUserQuestion 明确授权）
+
+| 组件 | 改动 | 分级 | 验证 |
+| --- | --- | --- | --- |
+| `SKILL.md` | 追加「派发前的轮次预算与任务切分」「主代理假设清单（派发提示词强制分栏）」两节 | 禁止自动 → 已获用户授权后执行 | `references/harness-test-suite/run_all.py` |
+| `BUDGET.md` | 追加「轮次预算维度（per_worker_turn_budget）」字段表与熔断规则 | 禁止自动（新增预算字段原为待确认）→ 已获用户授权 | 同上 |
+| `references/子代理提示词模板.md` | 追加派发必填两栏与返回字段 `主代理前提证伪` | 待确认 → 已获用户授权 | 同上 |
+| `references/PROGRESS模板.md` | 追加「并发写者登记」节 | 待确认 → 已获用户授权 | 同上 |
+| `references/前端验证技巧.md` | §7 视觉验收必须独立工人、不与实现混派；过长提示词投递失败不等于任务失败 | 自动（纯说明性） | 同上 |
+
+无 Git 仓库承载本目录（工作区根非 git 仓库），按 Artifacts §2.2.4 降级为时间戳文件备份：
+每个被改组件同目录留存 `<原文件名>.backup.<YYYYMMDD-HHMMSS>`。
