@@ -18,7 +18,15 @@ A high-cost quality-compensation orchestrator for medium-to-large, multi-work-it
 
 ## Verification
 
-Run from the release root:
+CI (`.github/workflows/ci.yml`) runs three independent gates on every push and pull request:
+
+| Gate | Command | Purpose |
+| --- | --- | --- |
+| Regression | `python -B skills/循环工程/references/harness-test-suite/run_all.py` | 10 fixed tasks; each `verify.py` is pinned by SHA-256 in `manifest.json`, so neither editing a task script nor emptying the task list can fake a pass |
+| Structure | `python -B tools/校验仓库结构.py` | Every `skills/*/SKILL.md` present, all text strictly UTF-8 without mojibake, relative links in docs resolve to real paths |
+| Format | `npx markdownlint-cli "**/*.md"` | Markdown formatting, configured by `.markdownlint.json` at the repo root |
+
+Run the regression gate alone from the release root:
 
 ```powershell
 python -B .\skills\循环工程\references\harness-test-suite\run_all.py

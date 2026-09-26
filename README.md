@@ -27,7 +27,15 @@
 
 ## 验证
 
-从发布源根目录运行：
+本仓 CI（`.github/workflows/ci.yml`）在每次推送与 PR 上跑三道独立门禁：
+
+|门禁|命令|作用|
+|---|---|---|
+|回归门禁|`python -B skills/循环工程/references/harness-test-suite/run_all.py`|10 项固定任务，`verify.py` 按 `manifest.json` 的 SHA-256 锁定，防改脚本绕过与空集假绿|
+|结构门禁|`python -B tools/校验仓库结构.py`|全仓 `skills/*/SKILL.md` 齐备、文本严格 UTF-8 无乱码、文档相对链接指向真实路径|
+|格式门禁|`npx markdownlint-cli "**/*.md"`|Markdown 格式规范，规则集见仓库根 `.markdownlint.json`|
+
+单独运行回归门禁（从发布源根目录）：
 
 ```powershell
 python -B .\skills\循环工程\references\harness-test-suite\run_all.py

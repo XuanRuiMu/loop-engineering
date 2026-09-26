@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # 本仓的权威质量门：10 项固定任务，verify.py 逐个按 manifest.json 的 SHA-256 校验，
+  # 杜绝「改任务脚本绕过门禁」与「空集假绿」。任何一项不过即整体红灯。
+  harness:
+    name: 回归门禁（10 项固定任务）
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+      - name: 执行 harness 回归套件
+        run: python -B "skills/循环工程/references/harness-test-suite/run_all.py"
+
+  # 全仓库横向体检：Skill 目录齐备、文本严格 UTF-8 无乱码、文档相对链接指向真实路径。
+  # 与 harness 分工明确——harness 只管「循环工程」一个 Skill 的行为契约，本门禁管全仓。
+  structure:
+    name: 仓库结构门禁
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+      - name: 执行结构门禁
+        run: python -B tools/校验仓库结构.py
+
+  # 格式门禁。规则集见仓库根 .markdownlint.json：已按本仓实际写作风格关闭
+  # MD013（中文长段单行不折行）与 MD034（来源清单用裸 URL），MD024 仅限同级标题去重，
+  # 并放行 生成PRD 刻意使用的 <prd-template> / <user-story-example> 占位标签。
+  markdown:
+    name: Markdown 格式门禁
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: 执行 markdownlint
+        run: npx --yes markdownlint-cli@0.45.0 "**/*.md" --ignore-path .gitignore
