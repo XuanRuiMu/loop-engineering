@@ -1,225 +1,44 @@
-# Loop Engineering · 循环工程
+# 循环工程
 
-> 在 TRAE、WorkBuddy 等 AI Agent 工具中，使用较低等级模型的情况下，赋予普通 AI 大模型指定的工作流，进行多角色执行任务，多次检查，用「更多的 token 和更长的时间」，换取出货质量比肩世界级顶级模型的水平。
+面向中大型、多功能点和弱模型场景的高成本质量补偿编排器。它通过精简状态快照、跨宿主独立代理、局部验证、并行协作、熔断、恢复和最终门，降低上下文漂移、漏项和假完成。
 
-[![Stars](https://img.shields.io/github/stars/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/stargazers)
-[![Forks](https://img.shields.io/github/forks/XuanRuiMu/loop-engineering?style=flat&logo=github)](https://github.com/XuanRuiMu/loop-engineering/forks)
-[![License: MIT](https://img.shields.io/github/license/XuanRuiMu/loop-engineering)](LICENSE)
-[![Last Commit](https://img.shields.io/github/last-commit/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering/commits/main)
-[![Issues](https://img.shields.io/github/issues/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering/issues)
-[![Release](https://img.shields.io/github/v/release/XuanRuiMu/loop-engineering?logo=github)](https://github.com/XuanRuiMu/loop-engineering/releases)
-[![Repo Size](https://img.shields.io/github/repo-size/XuanRuiMu/loop-engineering)](https://github.com/XuanRuiMu/loop-engineering)
-[![Type](https://img.shields.io/badge/type-meta--skill-orange)](https://github.com/XuanRuiMu/loop-engineering)
-[![Skills](https://img.shields.io/badge/skills-9-blueviolet)](https://github.com/XuanRuiMu/loop-engineering/tree/main/skills)
+## 核心能力
 
-> 🌐 简体中文 ｜ [English](README_EN.md)
+- 状态外置：`PROGRESS.md`只保存当前推进所需信息，完成项和失效信息立即删除。
+- 跨宿主：只定义语义职责，不绑定任何宿主的工具名、参数名或代理类型。
+- 权限策略：默认拥有当前项目所需权限；高危操作用通俗语言说明影响并确认。
+- Headless：独立代理和专项Skill不直接交互或替主代理交付，未决事项返回“待用户确认”。
+- 质量门：局部测试、构建、lint、证据、独立审查和主代理最终门。
+- 熔断：循环、代理实例、修复、stall、补位、墙钟和独立审查能力。
+- 自我改进：只有新的、可复现且可跨任务复用的证据才触发Harness提案。
 
----
+## 组合专项Skill
 
-## 一个真实例子：用循环工程写一个 csv2json 工具
+`代码需求实现器`、`软件测试`、`Bug修复`、`三轴审查`、`方案审查`、`生成PRD`、`纾困复盘`和`会话交接`均支持`headless_mode=true`。
 
-你只下一条指令：
+## 文件
 
-> loop: 写一个 Python 命令行工具 csv2json，把 CSV 转成 JSON；要带单元测试、CLI 参数（-i 输入、-o 输出、支持 stdin）、错误处理。停止条件 = pytest 全过 + 三轴审查无阻塞。
+|路径|用途|
+|---|---|
+|`skills/循环工程/SKILL.md`|主流程、跨宿主适配、权限、循环、恢复和Self-Harness|
+|`skills/循环工程/BUDGET.md`|预算字段、计数口径和熔断权威来源|
+|`skills/循环工程/references/`|环境、Worker、状态、推理增强和前端验证协议|
+|`skills/循环工程/references/harness-test-suite/`|固定manifest和10项回归任务|
 
-循环工程把它跑成下面这样一次自主循环：
+## 验证
 
-**① 目标定义** —— 拆出可验证停止条件：`pytest` 全绿、`ruff` 零报错、三轴审查无阻塞项；熔断预算 20 轮；范围边界「不做 GUI、不接数据库」。
+从发布源根目录运行：
 
-**② 任务拆解** —— 写入极小的 `PROGRESS.md`（主线程唯一的状态）：
-
-```text
-FP-1 CLI 参数解析（-i / -o / stdin）
-FP-2 CSV 读取（编码探测 + 表头）
-FP-3 JSON 输出（ensure_ascii=False）
-FP-4 单元测试（正常 / 空文件 / 坏 CSV）
-FP-5 错误处理（异常不崩、给可读报错）
+```powershell
+python -B .\skills\循环工程\references\harness-test-suite\run_all.py
 ```
 
-**③ 自主循环** —— 主代理读进度、派发全新上下文子代理，每个子代理只回简短摘要：
-
-```text
-FP-1 子代理 → TDD        ✅ 6/6 测试通过
-FP-2 子代理 → TDD        ✅ 4/4 测试通过
-FP-3 子代理 → 实现       ⚠ 三轴审查拦截：JSON 用了默认 ensure_ascii=True，
-                            中文被转成 \uXXXX → 回写修复 ✅
-FP-4 子代理 → TDD        ✅ 9/9 测试通过
-FP-5 子代理 → 实现       ✅ 边界覆盖；坏 CSV 触发熔断重试 1 次 → 重派发 ✅
-```
-
-每完成一个功能点，`PROGRESS.md` 只保留「已完成」和「下一步需要什么」，主线程上下文永不膨胀。
-
-**④ 交付 + 自我改进** —— 全量测试绿、三轴审查通过；元循环从本次任务挖到一条规律：「凡涉及文件读写，子代理常漏编码处理或异常分支」，于是自动补了一条 harness 规则「文件类功能点强制在三轴审查里核对编码与异常清单」。下次同类任务直接受益。
-
-整个过程你只说过一次目标，没有盯着它改；一个较低等级模型，靠「更多 token + 更长时间 + 强制验证」，交出了和顶级模型同级的成品。
-
----
-
-## 介绍
-
-**循环工程** 是一套「方法论 + 技能包」。顶级模型很贵、也很聪明；但大多数日常工具（TRAE、WorkBuddy、Cursor、Claude Code 等）默认跑的是更便宜的较低等级模型。循环工程不靠换模型，而是靠**工程化约束**把质量拉满：
-
-- 你给一个目标，它把目标拆成功能点，派发**全新上下文**的子代理逐个实现；
-- 每个功能点都必须**先跑测试、再跑三轴审查**才算完成，绝不「声称做完」；
-- 用**熔断机制**防止在某个 bug 上死循环；
-- 并在**每次任务后**跑元循环**自我改进自身的规则**。
-
-它要解决的，正是智能体最弱的一环：*把事做完、做对*。智能体改一个文件很在行，但「把整个项目交付」就不行了——上下文会爆、范围会漂、会在一个 bug 上死循环、会跳过测试，而且永远不会「越用越会干」。循环工程把项目状态外置到一个极小的 `PROGRESS.md`（只保留「现在需要什么」），主线程永不膨胀，强制验证与审查，并叠加熔断与自我改进。
-
-它本质是**元技能**：负责编排，真正的活由一整套随附技能干——三轴审查、纾困复盘、方案审查、代码需求实现器、Bug修复、软件测试、生成PRD、会话交接，全部打包在内、开箱即用。`SKILL.md` 采用 Anthropic Agent Skills 格式，可被 Claude Code、CodeBuddy/WorkBuddy、TRAE、Cursor 及任何读取 `SKILL.md` 的智能体加载。
-
----
-
-## 能力一览
-
-- **自主循环**：主代理派发子代理，只有「阻塞 / 熔断 / 完成」三种情况才停下找你。
-- **抗上下文爆炸**：状态在文件里，不在对话里；子代理用全新上下文，只回简短摘要。
-- **可验证停止条件**：拒绝「优化一下」这种模糊目标，必须是「测试全过 + lint 零报错」。
-- **熔断机制**：同一问题修 5 次仍失败就跳过；总轮次到上限就停下汇报。不死循环。
-- **三轴审查（强制）**：规范轴 + 规格轴 + 盲区轴，并行子代理执行，绝不跳过。
-- **元循环自检**：每次任务后挖掘自身失败模式，按级别自动 / 待确认 / 禁止自动地改进自身 harness。
-- **契约协调**：跨功能点的公开契约变更以增量记录，避免并行子代理基于旧假设实现。
-- **补位机制**：子代理失败或产出不达标时，主代理可亲自补位（有次数预算），随后重新派发全新上下文子代理，防止锚定偏差。
-
----
-
-## 仓库结构
-
-```text
-loop-engineering/
-├── README.md              # 本文档（中文）
-├── README_EN.md           # 英文版
-├── install.sh             # Linux / macOS 一键安装脚本
-├── install.ps1            # Windows 一键安装脚本
-├── LICENSE                # MIT 许可证
-└── skills/                # 9 个随附技能，全部开箱即用
-    ├── 循环工程/          # 元技能：编排 + 循环 + 熔断 + 元循环
-    │   ├── SKILL.md       # 技能主文档（Anthropic Agent Skills 格式）
-    │   ├── HARNESS.md     # harness 规则：铁律、补位、上下文墙
-    │   ├── BUDGET.md      # 熔断 / 轮次 / token 预算
-    │   ├── EVIDENCE.md    # 证据规范（禁止无证据声称完成）
-    │   └── references/    # 子代理提示词模板、PROGRESS 模板、Orchestrator-Headless 模式、
-    │                      # EnvironmentEngineering、前端验证技巧、harness 回归测试套件
-    ├── 三轴审查/          # 强制三轴代码审查（规范 / 规格 / 盲区，并行子代理）
-    ├── 纾困复盘/          # 卡顿 / 熔断时的方向复盘
-    ├── 方案审查/          # 实施前的对抗性审查（quick / deep / grill 三档）
-    ├── 代码需求实现器/    # 派发给子代理的 TDD 实现
-    ├── Bug修复/           # 派发给子代理的诊断 + 修复流程
-    ├── 软件测试/          # 测试执行与验证
-    ├── 生成PRD/           # 复杂任务细化拆解
-    └── 会话交接/          # 跨会话续跑的上下文交接
-```
-
----
+成功标准：输出`总计: 10/10 通过`且退出码为0。离线测试不证明真实模型行为，也不证明弱模型经此达到高能力模型的推理效果；真实循环仍需隔离工作区并记录有/无Skill对照、实际写入和工具轨迹。
 
 ## 安装
 
-一行命令，无构建步骤，无依赖：
-
-```bash
-# Linux / macOS —— 安装到 Claude Code 的全局技能目录（~/.claude/skills）
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.sh)"
-
-# Windows（PowerShell）—— 安装到 ~/.claude/skills
-irm https://raw.githubusercontent.com/XuanRuiMu/loop-engineering/main/install.ps1 | iex
-```
-
-两条脚本都接受可选的目标目录，例如 `install.sh /path/to/your-project/.agents/skills`。
-
-### 或下载压缩包
-
-从 [Releases 页](https://github.com/XuanRuiMu/loop-engineering/releases) 下载 `loop-engineering-skills.zip`，解压到对应工具的技能目录即可：
-
-- **CodeBuddy / WorkBuddy / TRAE**：解压到 `.agents/skills/`
-- **Claude Code**：解压到 `~/.claude/skills/`（全局）或项目内 `skills/`
-- **Cursor / Windsurf**：把各 `SKILL.md` 接入 skills loader 或指向 rules
-
-压缩包顶层就是 9 个技能文件夹，一次解压全部就位；想升级随时重新下载。（下载后可用 SHA256 `28b29f6b9673948d47a4db3c1cd4820533ce9425cb7d4af4d9236b88a0183664` 核对完整性。）
-
----
-
-## 工作原理
-
-四个阶段，外面再裹一层熔断机制与自我改进循环：
-
-1. **目标定义**：把需求变成可验证停止条件 + 熔断预算 + 明确的范围边界（"做 / 不做 / 绝不碰"）。
-2. **任务拆解**：拆成粗粒度功能点，写入精简的 `PROGRESS.md`。
-3. **自主循环（核心）**：主代理读进度、选下一个功能点、派发子代理、收简短摘要、压缩记录、循环。派发前做依赖与契约校验。
-4. **交付确认**：重跑全量测试、跑元循环自检，再用 `AskUserQuestion` 交付完整报告，并按需清理过程文件。
-
-**熔断机制**在以下情况停下：同一问题修 5 次、总轮次到上限、关键功能点阻塞、或 token 预算耗尽。
-
-**元循环**从刚完成的任务中挖掘可复用的失败模式（必须有证据，禁止编造），提出 harness 层修复，用回归任务集验证，自动级直接落地，待确认级交给你决策。
-
----
-
-## 随附技能包
-
-循环工程是**元技能**：它负责编排，随附技能负责具体干活。全部打包在内，开箱即用。
-
-| 技能 | 在循环中的角色 |
-| --- | --- |
-| **循环工程**（本技能）| 编排 + 循环 + 熔断 + 元循环 |
-| **三轴审查** | 强制三轴代码审查（规范 / 规格 / 盲区，并行子代理）|
-| **纾困复盘** | 卡顿 / 熔断时的方向复盘 |
-| **方案审查** | 实施前的对抗性审查（quick / deep / grill 三档）|
-| **代码需求实现器** | 派发给子代理的 TDD 实现 |
-| **Bug修复** | 派发给子代理的诊断 + 修复流程 |
-| **软件测试** | 测试执行与验证 |
-| **生成PRD** | 复杂任务细化拆解 |
-| **会话交接** | 跨会话续跑的上下文交接 |
-
----
-
-## 对比
-
-循环工程的对手不是「另一个 AI」，而是「你自己盯着 AI 干」和「工具自带的单次目标指令」。
-
-| 能力 | 裸用智能体 | 单次目标指令（如 Claude Code 的 `/goal`、Codex 的 `/目标`）| **循环工程** |
-| --- | --- | --- | --- |
-| 不用你盯着也能做完 | 否 | 部分 | **是**（自主循环到停止条件）|
-| 扛得住上下文窗口 | 否 | 否（单上下文易爆）| **是**（全新上下文子代理 + PROGRESS.md）|
-| 止住失控死循环 | 否 | 通常无 | **是**（熔断机制）|
-| 声称完成前先跑测试 + 审查 | 有时 | 通常无 | **是**（强制三轴）|
-| 随附开箱即用技能包 | 否 | 否 | **是**（9 个技能打包）|
-| 随时间自我改进 | 否 | 否 | **是**（元循环）|
-
-> 和同类循环 / 自动化 skill 相比，循环工程的差异点在于：它**自带一整套随附技能**（三轴审查、纾困复盘、方案审查、TDD 实现、Bug 修复、测试、PRD、会话交接），并强制「测试 + 三轴审查才算完成」+ 熔断 + 自我改进元循环——而不是只给一个空壳循环框架让你自己填。
-
-> 它**不替代** Claude Code 的 `/goal` 或 Codex 的 `/目标`：你完全可以在这些工具里调用循环工程，把一次性的目标指令升级成「带审查、带熔断、会自我改进」的工程循环。
-
----
-
-## 测试与回归
-
-`skills/循环工程/references/harness-test-suite` 内置了一整套 harness 回归测试（`run_all.py`），覆盖：
-
-- `PROGRESS.md` 精简与压缩契约
-- 子代理返回摘要的格式规范（简短短摘要、token 估算、失败标签）
-- 技能目录结构完整性
-- 证据（Evidence）结构规范
-- 元审查守卫
-
-每轮 `run_all.py` 全绿，是「循环工程自身没退化」的机器可验证保证。
-
----
-
-## 常见问题
-
-**写小说、写音乐也能用循环工程吗？** 能。循环本身是通用的——任何能被拆成「可验证步骤 + 明确停止条件」的创造性或生产性任务都能用，举几个非代码的例子：
-
-- **写长篇小说**：`loop: 把这本 30 万字小说按大纲拆成章节，逐章写，每章跑三轴审查（人物声纹一致性 / 情节逻辑 / 文风签名），人设前后矛盾就熔断回写。` 较低等级模型靠多轮循环 + 逐章审查，照样能写出人物稳定、伏笔回收、文风统一的成稿，而不是一次生成就崩。
-- **写音乐 / 专辑**：`loop: 写一张 10 首歌的专辑，逐首生成，每首跑审查（和声进行 / 曲式结构 / 主题动机统一 / 编曲层次），主题动机前后不统一就重做。` 模型用更多 token 把「一首还行」打磨成「整张概念统一」。
-- **写研究报告 / 论文**：`loop: 把这份课题拆成文献综述、方法、实验、讨论，逐节写并跑事实核查与引用审查，数据来源缺失就标记阻塞。`
-
-核心思路一致：**用更便宜的模型 + 更多循环轮次 + 强制验证，换世界级产出**。
-
-**子代理卡住了怎么办？** 修复 5 次仍失败就标记为阻塞，主代理跳过继续；若它阻塞了后续所有依赖项，循环停下，并在方向性问题时先跑纾困复盘再汇报。
-
----
+安装脚本是独立发布工具。目标目录必须显式传入；脏源树默认拒绝安装，审阅后显式使用`-AllowDirty`；远程安装必须提供已审计的完整commit SHA。安装器只报告复制完成，运行时加载必须另行验证。
 
 ## 许可证
 
-[MIT](LICENSE) © 2026 玄锐暮
-
-**Made with ❤️ by 玄锐暮** —— 让每个普通模型，都能交出世界级的成品。
+MIT

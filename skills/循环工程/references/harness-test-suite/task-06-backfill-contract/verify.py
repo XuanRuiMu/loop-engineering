@@ -1,31 +1,60 @@
-# 回归任务 6：验证盲点修复是否落地
-# - 盲点1（补位无上限）：BUDGET.md 须含 orchestrator_backfill_limit，SKILL.md 须含「补位熔断」
-# - 盲点2（跨功能点契约耦合）：PROGRESS模板/子代理提示词模板/SKILL.md 须含「契约变更」协调
 import pathlib
+import re
 import sys
 
+
 技能根 = pathlib.Path(__file__).resolve().parents[3]
-检查项 = [
-    (技能根 / "BUDGET.md", "orchestrator_backfill_limit", "盲点1预算字段缺失"),
-    (技能根 / "SKILL.md", "补位熔断", "盲点1补位熔断规则缺失"),
-    (技能根 / "SKILL.md", "契约变更协调", "盲点2契约变更协调小节缺失"),
-    (技能根 / "references" / "PROGRESS模板.md", "契约变更", "盲点2 PROGRESS 契约变更节缺失"),
-    (技能根 / "references" / "子代理提示词模板.md", "契约变更", "盲点2 子代理提示词契约变更字段缺失"),
-]
 
-失败 = []
-for 路径, 关键词, 说明 in 检查项:
-    if not 路径.exists():
-        失败.append(f"{说明}：文件不存在 {路径}")
-        continue
-    文本 = 路径.read_text(encoding="utf-8")
-    if 关键词 not in 文本:
-        失败.append(f"{说明}：{路径.name} 未含『{关键词}』")
 
-if 失败:
-    for f in 失败:
-        print(f"FAIL - {f}")
-    sys.exit(1)
+def 验证补位契约(预算内容, 主流程内容):
+    错误 = []
+    字段行 = re.search(r'(?m)^\|`orchestrator_backfill_limit`\|整数\|.*\|(\d+)\|$', 预算内容)
+    if not 字段行 or int(字段行.group(1)) != 3:
+        错误.append('orchestrator_backfill_limit默认值不是3')
+    if '达到补位上限后停止继续补位' not in 主流程内容:
+        错误.append('主流程缺少停止补位动作')
+    if '改派新代理' not in 主流程内容:
+        错误.append('主流程缺少改派新代理动作')
+    熔断区 = re.search(r'## 熔断规则(.*?)(?:\n## |\Z)', 预算内容, re.S)
+    if not 熔断区 or 'orchestrator_backfill_limit' not in 熔断区.group(1):
+        错误.append('BUDGET缺少补位熔断规则')
+    return 错误
 
-print("PASS - 补位熔断与契约变更协调两项盲点修复均已落地")
-sys.exit(0)
+
+def 验证契约协调(文本):
+    必要语义 = ['公开契约变化', '旧值到新值', '尚未被消费者吸收', '并行前扫描', '把增量注入', '立即删除']
+    return [语义 for 语义 in 必要语义 if 语义 not in 文本]
+
+
+def main():
+    预算路径 = 技能根 / 'BUDGET.md'
+    主流程路径 = 技能根 / 'SKILL.md'
+    if not 预算路径.is_file() or not 主流程路径.is_file():
+        print('FAIL: 缺少BUDGET.md或SKILL.md')
+        return 1
+    预算内容 = 预算路径.read_text(encoding='utf-8')
+    主流程内容 = 主流程路径.read_text(encoding='utf-8')
+    错误 = 验证补位契约(预算内容, 主流程内容)
+
+    契约区 = re.search(r'#### 并行与契约(.*?)(?:\n#### |\n### |\Z)', 主流程内容, re.S)
+    契约文本 = 契约区.group(1) if 契约区 else ''
+    错误.extend(验证契约协调(契约文本))
+    if 契约区 and 验证契约协调(契约文本.replace('立即删除', '以后再说')) == []:
+        错误.append('契约清理负例被错误接受')
+
+    模板内容 = (技能根 / 'references' / 'PROGRESS模板.md').read_text(encoding='utf-8')
+    for 文本 in ['## 契约增量', '旧值到新值', '未吸收消费者']:
+        if 文本 not in 模板内容:
+            错误.append(f'PROGRESS模板缺少契约字段: {文本}')
+
+    if 错误:
+        print('FAIL: 补位熔断或契约协调语义不完整')
+        for 项 in 错误:
+            print(f'  - {项}')
+        return 1
+    print('PASS: 补位熔断与契约增量协调语义完整')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

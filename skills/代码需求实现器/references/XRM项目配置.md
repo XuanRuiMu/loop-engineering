@@ -3,7 +3,7 @@
 ## 基本信息
 
 - **项目名**：XRM（暮澜纪元 MMORPG 核心插件）
-- **项目路径**：`D:\XiTongWenJianJia\ZhuoMian\燃烧之陨我的世界服务端\暮澜纪元我的世界MMORPG服务端\plugins\玄锐暮插件\XRM`
+- **项目路径**：当前工作区内的 `暮澜纪元我的世界MMORPG服务端/plugins/玄锐暮插件/XRM`；启动时验证目录存在
 - **语言**：Java 25
 - **构建工具**：Gradle Kotlin DSL
 - **主包**：`暮澜纪元`（中文包名）
@@ -35,7 +35,7 @@
 
 ## 哈希清单
 
-- **脚本路径**：`D:\XiTongWenJianJia\ZhuoMian\燃烧之陨我的世界服务端\暮澜纪元我的世界MMORPG服务端\plugins\玄锐暮插件\XRM\sync_manifest.py`
+- **脚本路径**：项目根目录 `sync_manifest.py`；启动时验证文件存在
 - **清单文件**：`.sync-manifest.json`（位于XRM根目录）
 
 ### 命令

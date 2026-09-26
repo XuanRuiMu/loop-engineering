@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "task-01-progress-md",
+      "verify": "task-01-progress-md/verify.py",
+      "readme": "task-01-progress-md/README.md",
+      "sha256": "6fe17d8ad177f3b8df399913867b6447049244007c5890c99ed6575e5cdb76a3"
+    },
+    {
+      "id": "task-02-subagent-summary",
+      "verify": "task-02-subagent-summary/verify.py",
+      "readme": "task-02-subagent-summary/README.md",
+      "sha256": "cc8da2e8a51d1dcaa2aa045a057aef792b06fa95bd64e20ee459f2f9da7db9b9"
+    },
+    {
+      "id": "task-03-skill-structure",
+      "verify": "task-03-skill-structure/verify.py",
+      "readme": "task-03-skill-structure/README.md",
+      "sha256": "50dac79ec9af355983f10ea5dd513675956351614515023d2d27701897de5604"
+    },
+    {
+      "id": "task-04-evidence-structure",
+      "verify": "task-04-evidence-structure/verify.py",
+      "readme": "task-04-evidence-structure/README.md",
+      "sha256": "a726fc11cb7bea6d2f49fa0270a0f9028e36ee496792ce930091a78227a3e7ef"
+    },
+    {
+      "id": "task-05-subagent-output-format",
+      "verify": "task-05-subagent-output-format/verify.py",
+      "readme": "task-05-subagent-output-format/README.md",
+      "sha256": "4aa59746c68563851e0ff6206a3cc023bc1fc4bd682062ec6bd9d33de4f34bf5"
+    },
+    {
+      "id": "task-06-backfill-contract",
+      "verify": "task-06-backfill-contract/verify.py",
+      "readme": "task-06-backfill-contract/README.md",
+      "sha256": "20a06df41001ce00d69125a1330ee178478345a7e9e3ede7867c6b26f70e8aac"
+    },
+    {
+      "id": "task-07-meta-review-guard",
+      "verify": "task-07-meta-review-guard/verify.py",
+      "readme": "task-07-meta-review-guard/README.md",
+      "sha256": "acefe16482d69a909b80f9fd1302e9a14a45120e2bbca84ce10cc7a15592d4fe"
+    },
+    {
+      "id": "task-08-permission-risk-guards",
+      "verify": "task-08-permission-risk-guards/verify.py",
+      "readme": "task-08-permission-risk-guards/README.md",
+      "sha256": "8033ce6ecde32a1186b0c897f0892a180434c58215aafe44e169e6781617ae17"
+    },
+    {
+      "id": "task-09-runner-docs-portability",
+      "verify": "task-09-runner-docs-portability/verify.py",
+      "readme": "task-09-runner-docs-portability/README.md",
+      "sha256": "02402a815f0fb8668d6ca3d65a865c28fb994a3cdcae8b33f073e9e9785dddef"
+    },
+    {
+      "id": "task-10-reasoning-enhancement",
+      "verify": "task-10-reasoning-enhancement/verify.py",
+      "readme": "task-10-reasoning-enhancement/README.md",
+      "sha256": "67dbb5fc59dd39802c64a9144215937f012eb4c954ebff68684f26e3e56dece2"
+    }
+  ]
+}

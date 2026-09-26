@@ -1,0 +1,12 @@
+{
+  "cases": [
+    {"file": "valid.txt", "expected": true, "reason": "完整通过摘要"},
+    {"file": "invalid_missing.txt", "expected": false, "reason": "缺少审查字段"},
+    {"file": "invalid_empty_count.txt", "expected": false, "reason": "计数字段为空"},
+    {"file": "invalid_typo.txt", "expected": false, "reason": "摘要版本错误"},
+    {"file": "invalid_missing_count.txt", "expected": false, "reason": "缺少计数字段"},
+    {"file": "invalid_failure_tags_bad.txt", "expected": false, "reason": "失败标签非法"},
+    {"file": "invalid_evidence_prefix.txt", "expected": false, "reason": "证据前缀错误"},
+    {"file": "invalid_evidence_missing.txt", "expected": false, "reason": "证据文件不存在"}
+  ]
+}

@@ -3,7 +3,7 @@
 状态：已完成
 结果：已实现并通过验证
 失败标签：无
-证据：无
+证据：.agents/evidence/traces/__missing__.md
 验证：通过；命令=python -B run_all.py；目标=固定回归任务集；结果=退出码0
 计数：修复=0;stall=0;轮次=8;估算=10;宿主上限=未知;嵌套=0
 修改文件：src/example.py

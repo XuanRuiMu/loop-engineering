@@ -1,28 +1,53 @@
-# 回归任务 7：验证元循环确认偏差修复（EV-007）是否真实落地
-# - SKILL.md Proposal Validation 须引用「方案审查」快速模式（反对者子代理）独立审查自动级核心提案
-# - SKILL.md 须声明「无新证据即停」须经独立确认（封堵确认偏差残角，EV-013 补面）
 import pathlib
+import re
 import sys
 
+
 技能根 = pathlib.Path(__file__).resolve().parents[3]
-检查项 = [
-    (技能根 / "SKILL.md", "方案审查", "元循环确认偏差修复缺失：SKILL.md 未引用『方案审查』快速模式独立审查自动级核心提案"),
-    (技能根 / "SKILL.md", "无新证据", "确认偏差残角未封堵：Self-Harness 停止条件未声明『无新证据即停』须经独立确认"),
-]
+主流程路径 = 技能根 / 'SKILL.md'
 
-失败 = []
-for 路径, 关键词, 说明 in 检查项:
-    if not 路径.exists():
-        失败.append(f"{说明}：文件不存在 {路径}")
-        continue
-    文本 = 路径.read_text(encoding="utf-8")
-    if 关键词 not in 文本:
-        失败.append(f"{说明}：{路径.name} 未含『{关键词}』")
 
-if 失败:
-    for f in 失败:
-        print(f"FAIL - {f}")
-    sys.exit(1)
+def 提取区段(内容, 标题):
+    匹配 = re.search(rf'## {re.escape(标题)}(.*?)(?=\n## |\Z)', 内容, re.S)
+    return 匹配.group(1) if 匹配 else ''
 
-print("PASS - 元循环确认偏差修复与无新证据独立确认均已落地")
-sys.exit(0)
+
+def 验证SelfHarness(区段):
+    必要语义 = [
+        '新的、可复现且可跨任务复用',
+        '判定“没有新弱点”前必须由独立审计者复核',
+        '独立反对审查',
+        '用户确认',
+        'python -B',
+        '失败立即回滚',
+    ]
+    return [语义 for 语义 in 必要语义 if 语义 not in 区段]
+
+
+def main():
+    if not 主流程路径.is_file():
+        print('FAIL: 缺少SKILL.md')
+        return 1
+    内容 = 主流程路径.read_text(encoding='utf-8')
+    区段 = 提取区段(内容, 'Self-Harness')
+    错误 = 验证SelfHarness(区段)
+    if not 区段:
+        错误.append('缺少Self-Harness区段')
+    反向区段 = 区段.replace('判定“没有新弱点”前必须由独立审计者复核', '主代理可以直接判定没有新弱点')
+    if not 验证SelfHarness(反向区段):
+        错误.append('无新证据停止负例被错误接受')
+    反向核心 = 区段.replace('独立反对审查', '主代理自行判断')
+    if not 验证SelfHarness(反向核心):
+        错误.append('核心提案独立审查负例被错误接受')
+
+    if 错误:
+        print('FAIL: Self-Harness触发和治理契约不完整')
+        for 项 in 错误:
+            print(f'  - {项}')
+        return 1
+    print('PASS: Self-Harness停止需独立复核，核心改动保持独立审查')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

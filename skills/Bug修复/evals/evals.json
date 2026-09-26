@@ -1,22 +1,22 @@
 {
-  "skill_name": "bug-fix",
+  "skill_name": "Bug修复",
   "evals": [
     {
       "id": 1,
       "prompt": "修复bug：玩家使用技能时服务器报NullPointerException",
-      "expected_output": "技能应触发Bug修复 skill。阶段1发现描述缺少具体报错位置、复现步骤和期望行为，属于歧义，必须先使用AskUserQuestion询问用户澄清。澄清后完整阅读相关代码，深挖根因，对照需求文档，执行修复，搜索同类问题，测试验证，最后用AskUserQuestion交付",
+      "expected_output": "交互模式应触发Bug修复，发现描述缺少报错位置、复现步骤和期望行为，使用宿主用户交互能力澄清；Headless模式返回待用户确认。澄清后完整阅读代码、深挖根因、对照需求、修复、搜索同类问题、测试并交主代理。",
       "files": []
     },
     {
       "id": 2,
       "prompt": "修复警告：编译时出现deprecation警告",
-      "expected_output": "技能应触发Bug修复 skill。阶段1发现描述缺少具体警告位置、涉及API和期望替代方案，属于歧义，必须先使用AskUserQuestion询问用户澄清。澄清后识别为警告类型问题，定位警告来源代码，完整阅读相关代码理解上下文，制定修复计划替换过时API，搜索同类问题，测试验证，交付确认",
+      "expected_output": "交互模式应触发Bug修复并澄清警告位置、涉及API和替代方案；Headless模式缺少决定时返回待用户确认。随后定位来源、制定计划、处理同类问题、测试并交主代理。",
       "files": []
     },
     {
       "id": 3,
       "prompt": "出bug了，东西不对",
-      "expected_output": "技能应触发bug-fix skill，识别用户描述存在严重歧义（什么东西不对、什么表现、何时发生均不明确），必须使用AskUserQuestion询问用户澄清问题，不得猜测和自行假设",
+      "expected_output": "应识别现象、位置和期望均不明确。交互模式向用户澄清；Headless模式返回结构化待用户确认，禁止猜测。",
       "files": []
     }
   ]

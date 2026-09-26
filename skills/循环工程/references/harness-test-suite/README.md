@@ -1,36 +1,34 @@
 # 固定回归任务集
 
-本目录包含循环工程 skill 的最小固定回归任务集，用于在每次迭代后快速验证 skill 元文件与约定结构未被意外破坏。
+本目录验证循环工程的精简状态、跨宿主提示词、默认最高权限与高危提醒、预算契约、证据路径、推理增强和Self-Harness边界。
 
-## 任务清单
+## 唯一任务清单
 
-> `run_all.py` 会自动发现本目录下所有以 `task-` 开头的子目录并依次运行其 `verify.py`，因此新增回归任务只需新建 `task-XX-*/verify.py` 即可被套件覆盖，无需手动维护下表——但下表须与磁盘实际任务保持一致，避免文档漂移。
+`manifest.json`固定10个任务。`run_all.py`不会动态发现任务；少任务、多任务、缺脚本、非法路径或任一测试失败都会返回非零。
 
-| 任务 | 目录 | 验证目标 |
-|---|---|---|
-| 任务 1 | `task-01-progress-md/` | 验证 `PROGRESS.md` 结构（元信息/范围边界/功能点/已完成/当前决策）含 `FP-` 前缀记录；无运行时实例时以 `references/PROGRESS模板.md` 为结构基准（EV-008） |
-| 任务 2 | `task-02-subagent-summary/` | 验证子代理摘要字段与类型符合约定 |
-| 任务 3 | `task-03-skill-structure/` | 验证 skill 目录结构符合规范（含本任务集） |
-| 任务 4 | `task-04-evidence-structure/` | 验证 `.agents/evidence/` 目录及子目录存在，且 `EVIDENCE.md` 包含必要章节 |
-| 任务 5 | `task-05-subagent-output-format/` | 验证子代理摘要 `token_estimate` / `failure_tags` / `evidence_link` 字段格式（含 7 个失败分支样本 + 1 有效路径） |
-| 任务 6 | `task-06-backfill-contract/` | 验证补位熔断（`orchestrator_backfill_limit` / 「补位熔断」）与契约变更协调（`契约变更协调` / PROGRESS模板·子代理模板「契约变更」）两项盲点修复已落地（EV-005 / EV-006） |
-| 任务 7 | `task-07-meta-review-guard/` | 验证元循环确认偏差修复（SKILL.md 引用「方案审查」快速模式独立审查自动级核心提案）与「无新证据即停」须经独立确认已落地（EV-007 / EV-014） |
+|任务|验证目标|
+|---|---|
+|`task-01-progress-md`|PROGRESS模板是可覆盖的精简快照，无完成历史和重复状态|
+|`task-02-subagent-summary`|Worker摘要v2字段完整，旧JSON契约被拒绝|
+|`task-03-skill-structure`|核心文件和10项固定任务与manifest完全一致|
+|`task-04-evidence-structure`|证据目录、记录和真实路径边界有效|
+|`task-05-subagent-output-format`|完整摘要正负例和三态交叉约束有效|
+|`task-06-backfill-contract`|补位熔断与契约增量协调语义完整|
+|`task-07-meta-review-guard`|Self-Harness停止判定需要独立复核，核心改动保持独立审查|
+|`task-08-permission-risk-guards`|默认最高权限、用户WIP和高危通俗提醒有效|
+|`task-09-runner-docs-portability`|核心与专项Skill不绑定固定宿主API，README不漂移|
+|`task-10-reasoning-enhancement`|推理增强三门、方法库、决策卡、接线与负例均有效|
 
-## 运行方式
-
-一次性运行全部任务：
-
-```bash
-python run_all.py
-```
-
-单独运行某个任务：
+## 运行
 
 ```bash
-python task-01-progress-md/verify.py
-python task-02-subagent-summary/verify.py
-python task-03-skill-structure/verify.py
-python task-04-evidence-structure/verify.py
+python -B references/harness-test-suite/run_all.py
 ```
 
-每个验证脚本成功时打印 `PASS` 并返回退出码 `0`，失败时打印 `FAIL` 并返回非零退出码。
+从套件目录运行时使用：
+
+```bash
+python -B run_all.py
+```
+
+成功标准：输出`总计: 10/10 通过`且退出码为0。

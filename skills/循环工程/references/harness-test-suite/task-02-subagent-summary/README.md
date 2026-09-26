@@ -1,16 +1,7 @@
-# 任务 2：验证子代理摘要格式
+# 任务2：Worker摘要v2结构
 
-## 描述
-确认子代理返回的摘要 JSON 包含约定的必填字段、合法状态值，以及可选字段的正确类型。
-
-## 输入
-- `fixture.json`（本目录下的示例摘要）
-
-## 预期输出
-- `PASS: 子代理摘要格式合法`
-
-## 验证命令
+从权威提示词模板提取16个字段，验证完整正例、逐字段缺失负例和旧JSON负例。字段集合、顺序或版本错误必须失败。
 
 ```bash
-python task-02-subagent-summary/verify.py
+python -B task-02-subagent-summary/verify.py
 ```

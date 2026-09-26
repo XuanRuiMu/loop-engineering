@@ -1,3 +1,16 @@
-token_estimate：约 15K
-failure_tags：无
-evidence_link：.agents/skidence/traces/fp01.md
+摘要版本：3
+功能点：FP-01 示例功能
+状态：已完成
+结果：已实现并通过验证
+失败标签：无
+证据：无
+验证：通过；命令=python -B run_all.py；目标=固定回归任务集；结果=退出码0
+计数：修复=0;stall=0;轮次=8;估算=10;宿主上限=未知;嵌套=0
+修改文件：src/example.py
+树状态：绿
+后台任务：无后台任务
+审查：通过
+遗留：无
+前提证伪：无
+契约变更：无
+下一步：派发FP-02

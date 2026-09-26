@@ -19,3 +19,5 @@ build/
 *.env
 .env
 *.token
+__pycache__/
+*.pyc
